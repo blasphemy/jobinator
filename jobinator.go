@@ -2,7 +2,6 @@ package jobinator
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 
@@ -46,7 +45,6 @@ func driverIsValid(driverName string) error {
 }
 
 func (c *client) RegisterWorker(name string, wf WorkerFunc) {
-	log.Println("Registering worker for " + name)
 	c.workerFuncs[name] = wf
 }
 
