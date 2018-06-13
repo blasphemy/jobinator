@@ -1,6 +1,7 @@
 package jobinator
 
 import (
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -37,4 +38,5 @@ type BackgroundWorker struct {
 	c        *client
 	quitChan chan bool
 	running  bool
+	runMutex sync.Mutex
 }

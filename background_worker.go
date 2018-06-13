@@ -2,13 +2,15 @@ package jobinator
 
 import (
 	"log"
+	"sync"
 	"time"
 )
 
 func (c *client) NewBackgroundWorker() *BackgroundWorker {
 	bw := &BackgroundWorker{
-		running: false,
-		c:       c,
+		running:  false,
+		c:        c,
+		runMutex: sync.Mutex{},
 	}
 	c.workers = append(c.workers, bw)
 	return bw
@@ -20,7 +22,9 @@ func (bw *BackgroundWorker) backgroundWorkerFunc() {
 		select {
 		case <-bw.quitChan:
 			log.Println("stopping worker")
+			bw.runMutex.Lock()
 			bw.running = false
+			bw.runMutex.Unlock()
 			return
 		default:
 			log.Printf("Sleeping for %s", bw.c.config.WorkerSleepTime)
@@ -28,6 +32,12 @@ func (bw *BackgroundWorker) backgroundWorkerFunc() {
 			bw.c.ExecuteOneJob()
 		}
 	}
+}
+
+func (bw *BackgroundWorker) IsRunning() bool {
+	bw.runMutex.Lock()
+	defer bw.runMutex.Unlock()
+	return bw.running
 }
 
 func (bw *BackgroundWorker) Start() {
