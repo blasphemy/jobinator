@@ -82,6 +82,9 @@ func TestBackgroundWorker(t *testing.T) {
 	for _, x := range workers {
 		x.Stop()
 	}
+	for _, x := range workers {
+		assert.False(t, x.running)
+	}
 	assert.Equal(t, np.number, 3)
 }
 
