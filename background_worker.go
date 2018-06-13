@@ -53,3 +53,10 @@ func (bw *BackgroundWorker) Start() {
 func (bw *BackgroundWorker) Stop() {
 	bw.quitChan <- false
 }
+
+func (bw *BackgroundWorker) StopBlocking() {
+	bw.Stop()
+	for bw.IsRunning() == true {
+		time.Sleep(1 * time.Second)
+	}
+}

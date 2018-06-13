@@ -142,6 +142,12 @@ func (c *client) stopAllWorkers() {
 	}
 }
 
+func (c *client) stopAllWorkersBlocking() {
+	for _, x := range c.workers {
+		x.StopBlocking()
+	}
+}
+
 func (c *client) startAllWorkers() {
 	for _, x := range c.workers {
 		x.Start()
