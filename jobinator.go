@@ -1,6 +1,7 @@
 package jobinator
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/pkg/errors"
 	"github.com/vmihailenco/msgpack"
 )
 
@@ -40,7 +40,7 @@ func driverIsValid(driverName string) error {
 			return nil
 		}
 	}
-	return errors.Errorf("%s is not a valid driver, valid drivers are: %s", strings.Join(validDrivers, " "))
+	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", strings.Join(validDrivers, " "))
 }
 
 func (c *client) RegisterWorker(name string, wf WorkerFunc) {
@@ -51,7 +51,7 @@ func (c *client) RegisterWorker(name string, wf WorkerFunc) {
 func (c *client) executeWorker(name string, ref *jobRef) error {
 	_, ok := c.workerFuncs[name]
 	if !ok {
-		return errors.Errorf("Worker %s is not available", name)
+		return fmt.Errorf("Worker %s is not available", name)
 	}
 	err := c.workerFuncs[name](ref)
 	return err
