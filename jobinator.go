@@ -22,7 +22,6 @@ func NewClient(dbtype string, dbconn string, config clientConfig) (*client, erro
 		return nil, err
 	}
 	db, err := gorm.Open(dbtype, dbconn)
-	db.LogMode(true)
 	db.AutoMigrate(&job{})
 	if err != nil {
 		return nil, err
