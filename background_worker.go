@@ -1,7 +1,6 @@
 package jobinator
 
 import (
-	"log"
 	"sync"
 	"time"
 )
@@ -23,13 +22,11 @@ func (bw *BackgroundWorker) backgroundWorkerFunc() {
 	for {
 		select {
 		case <-bw.quitChan:
-			log.Println("stopping worker")
 			bw.runMutex.Lock()
 			bw.running = false
 			bw.runMutex.Unlock()
 			return
 		default:
-			log.Printf("Sleeping for %s", bw.c.config.WorkerSleepTime)
 			time.Sleep(bw.c.config.WorkerSleepTime)
 			bw.c.ExecuteOneJob()
 		}

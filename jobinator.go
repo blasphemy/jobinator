@@ -100,7 +100,6 @@ func (c *client) selectJob() (*job, error) {
 }
 
 func (c *client) ExecuteOneJob() error {
-	log.Println("grabbing a job")
 	j, err := c.selectJob()
 	if err != nil {
 		return err
