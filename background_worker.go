@@ -17,7 +17,9 @@ func (c *client) NewBackgroundWorker() *BackgroundWorker {
 }
 
 func (bw *BackgroundWorker) backgroundWorkerFunc() {
+	bw.runMutex.Lock()
 	bw.running = true
+	bw.runMutex.Unlock()
 	for {
 		select {
 		case <-bw.quitChan:
@@ -41,6 +43,9 @@ func (bw *BackgroundWorker) IsRunning() bool {
 }
 
 func (bw *BackgroundWorker) Start() {
+	if bw.IsRunning() {
+		return
+	}
 	bw.quitChan = make(chan bool)
 	go bw.backgroundWorkerFunc()
 }

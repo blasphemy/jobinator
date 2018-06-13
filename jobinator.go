@@ -141,3 +141,9 @@ func (c *client) stopAllWorkers() {
 		x.Stop()
 	}
 }
+
+func (c *client) startAllWorkers() {
+	for _, x := range c.workers {
+		x.Start()
+	}
+}

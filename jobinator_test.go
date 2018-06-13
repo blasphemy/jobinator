@@ -72,15 +72,13 @@ func TestBackgroundWorker(t *testing.T) {
 	globalClient.EnqueueJob("numthing", nil)
 	globalClient.EnqueueJob("numthing", nil)
 	globalClient.EnqueueJob("numthing", nil)
-	workers := []*BackgroundWorker{}
-	for i := 0; i < 2; i++ {
-		bw := globalClient.NewBackgroundWorker()
-		workers = append(workers, bw)
-		bw.Start()
+	for i := 0; i < 4; i++ {
+		globalClient.NewBackgroundWorker()
 	}
+	globalClient.startAllWorkers()
 	time.Sleep(time.Second * 5)
 	globalClient.stopAllWorkers()
-	for _, x := range workers {
+	for _, x := range globalClient.workers {
 		assert.False(t, x.IsRunning())
 	}
 	assert.Equal(t, np.number, 3)
