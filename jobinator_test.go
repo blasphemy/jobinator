@@ -90,3 +90,8 @@ func TestPendingJobs(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, count)
 }
+
+func TestDestroyAllWorkers(t *testing.T) {
+	globalClient.destroyAllWorkers()
+	assert.Equal(t, 0, len(globalClient.workers))
+}
