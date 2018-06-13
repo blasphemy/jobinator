@@ -7,7 +7,7 @@ install:
 - go get -t -v ./...
 script:
 - go test ./... -v -covermode=count -coverprofile=cover.out
-- "$GOPATH/bin/goverall -coverprofile=cover.out -service=travis-ci -repotoken $COVERALLS_TOKEN"
+- goverall -coverprofile=cover.out -service=travis-ci -repotoken $COVERALLS_TOKEN
 env:
   global:
     secure: O7wIvUmYBBYf2XMkNT70OYhFQ+oihuGKSHgcP0nFhmCfC/CCu1auoW97lpwU496ZKJHDWHB5ZWWTw00UZaT/hl0sP9L2lXplrzsY4+mfC2PZkJSYSJlWufKhraMNoa3nyNxaMQ/kucdLys70rVfp49P1qoLZzl6ONmMrzcuO+isee40NIgpz0jw77dvQBoNzQApexSC28y+Uv1io2iafrSpqSUUULppBCWEQcMjaUVi5Jt0s4CIQifZaNxR6Q1NQGXXmt2/8nFdpkphLPqsTO2H08lKxCXUa9eNBRmTWrwr3L2wPVTVldmmHvCvRHwXfeIFvY/qvX6LpTTcPm2GvdjWVHrA4kx2mhzdko+gYW9z0dzw0FJo5mDCexdC3f5GcNS6veNm3Yr4hn5za26VRcoeLqo4Y2BcMRsEghhiv9+KIUenmrvrU1ZI5A6u6zl9jyyKrSFaURNtfEwr69MaSOTq2iW/miitgNVY+3f47xwy0McfwEVRCrMz5+EAQHddcUgoq4OzDiPpYXunFKs6L9tyozjITXP0MSBTtAvwNVAsqxArgCdWX3dNf5mFLVmsXjO5xsd7dBCBV9RRQ3dlBTsw0gW7tdxDp8YPwsyv2my83O3oufynuR7TBIZGyJYRQ4pL7EGRF/Yrup0VhjajZLUdkVy2QInapxmnzZ++EkDY=
