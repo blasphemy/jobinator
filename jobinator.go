@@ -1,10 +1,10 @@
 package jobinator
 
 import (
-	"github.com/blasphemy/jobinator/status"
 	"log"
 	"strings"
-	"time"
+
+	"github.com/blasphemy/jobinator/status"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -15,17 +15,6 @@ import (
 var (
 	validDrivers = []string{"sqlite3"}
 )
-
-type client struct {
-	db          *gorm.DB
-	workerFuncs map[string]WorkerFunc
-	quitChan    chan bool
-	config      clientConfig
-}
-
-type clientConfig struct {
-	WorkerSleepTime time.Duration
-}
 
 func NewClient(dbtype string, dbconn string, config clientConfig) (*client, error) {
 	err := driverIsValid(dbtype)
@@ -137,28 +126,6 @@ func (j *jobRef) ScanArgs(v interface{}) error {
 
 func (c *client) markJobFinished(j *job) {
 	c.db.Model(j).Update("status", status.STATUS_DONE)
-}
-
-func (c *client) startWorker() {
-	c.quitChan = make(chan bool)
-	go func() {
-		log.Println("starting worker thread")
-		for {
-			select {
-			case <-c.quitChan:
-				log.Println("stopping worker")
-				return
-			default:
-				log.Println("sleeping for ", c.config.WorkerSleepTime)
-				time.Sleep(c.config.WorkerSleepTime)
-				c.ExecuteOneJob()
-			}
-		}
-	}()
-}
-
-func (c *client) stopWorker() {
-	c.quitChan <- true
 }
 
 func (c *client) pendingJobs() (int, error) {

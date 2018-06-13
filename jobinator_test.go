@@ -13,7 +13,7 @@ var (
 )
 
 func TestNewClient(t *testing.T) {
-	c, err := NewClient("sqlite3", "test.db", clientConfig{
+	c, err := NewClient("sqlite3", "file::memory:?mode=memory&cache=shared", clientConfig{
 		WorkerSleepTime: time.Second / 10,
 	})
 	assert.Nil(t, err)
@@ -57,7 +57,7 @@ func TestExecuteOne(t *testing.T) {
 	assert.Equal(t, 9, fakeDataStore["myKey"])
 }
 
-func TestStartWorker(t *testing.T) {
+func TestBackgroundWorker(t *testing.T) {
 	type thing struct {
 		number int
 	}
@@ -72,9 +72,16 @@ func TestStartWorker(t *testing.T) {
 	globalClient.EnqueueJob("numthing", nil)
 	globalClient.EnqueueJob("numthing", nil)
 	globalClient.EnqueueJob("numthing", nil)
-	globalClient.startWorker()
+	workers := []*BackgroundWorker{}
+	for i := 0; i < 2; i++ {
+		bw := globalClient.NewBackgroundWorker()
+		workers = append(workers, bw)
+		bw.Start()
+	}
 	time.Sleep(time.Second * 5)
-	globalClient.stopWorker()
+	for _, x := range workers {
+		x.Stop()
+	}
 	assert.Equal(t, np.number, 3)
 }
 

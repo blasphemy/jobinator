@@ -1,6 +1,10 @@
 package jobinator
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 type job struct {
 	ID        int64
@@ -17,3 +21,19 @@ type jobRef struct {
 }
 
 type WorkerFunc func(j *jobRef) error
+
+type client struct {
+	db          *gorm.DB
+	workerFuncs map[string]WorkerFunc
+	config      clientConfig
+}
+
+type clientConfig struct {
+	WorkerSleepTime time.Duration
+}
+
+type BackgroundWorker struct {
+	c        *client
+	quitChan chan bool
+	running  bool
+}
