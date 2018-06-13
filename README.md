@@ -1,4 +1,5 @@
 # jobinator
+[![](https://godoc.org/github.com/blasphemy/jobinator?status.svg)](http://godoc.org/github.com/blasphemy/jobinator)
 [![Build Status](https://travis-ci.org/blasphemy/jobinator.svg?branch=master)](https://travis-ci.org/blasphemy/jobinator)
 [![Coverage Status](https://coveralls.io/repos/github/blasphemy/jobinator/badge.svg?branch=master)](https://coveralls.io/github/blasphemy/jobinator?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/blasphemy/jobinator)](https://goreportcard.com/report/github.com/blasphemy/jobinator)
