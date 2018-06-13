@@ -28,6 +28,7 @@ type client struct {
 	workerFuncs map[string]WorkerFunc
 	config      clientConfig
 	workers     []*BackgroundWorker
+	dbLock      sync.Mutex
 }
 
 type clientConfig struct {
