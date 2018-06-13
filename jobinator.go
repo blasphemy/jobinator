@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 
 	"github.com/blasphemy/jobinator/status"
 
@@ -30,6 +31,7 @@ func NewClient(dbtype string, dbconn string, config clientConfig) (*client, erro
 		db:          db,
 		workerFuncs: make(map[string]WorkerFunc),
 		config:      config,
+		dbLock:      sync.Mutex{},
 	}
 	return newc, nil
 }
@@ -67,7 +69,9 @@ func (c *client) EnqueueJob(name string, args interface{}) error {
 		Args:   contextMsg,
 		Status: status.STATUS_ENQUEUED,
 	}
+	c.dbLock.Lock()
 	err = c.db.Save(nj).Error
+	c.dbLock.Unlock()
 	return err
 }
 
@@ -76,6 +80,8 @@ func (c *client) selectJob() (*job, error) {
 	for x := range c.workerFuncs {
 		wf = append(wf, x)
 	}
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
 	j := &job{}
 	statuses := []int{
@@ -128,6 +134,8 @@ func (c *client) markJobFinished(j *job) {
 
 func (c *client) pendingJobs() (int, error) {
 	var n int
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
 	err := c.db.Model(&job{}).Where("status in (?)", []int{status.STATUS_ENQUEUED, status.STATUS_RETRY}).Count(&n).Error
 	if err != nil {
 		return 0, err
