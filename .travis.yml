@@ -19,3 +19,6 @@ env:
 allow_failures:
   go:
   - tip
+os:
+  - linux
+  - osx
