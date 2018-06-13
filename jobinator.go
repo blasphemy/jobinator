@@ -40,7 +40,7 @@ func driverIsValid(driverName string) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", strings.Join(validDrivers, " "))
+	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", driverName, strings.Join(validDrivers, " "))
 }
 
 func (c *client) RegisterWorker(name string, wf WorkerFunc) {
