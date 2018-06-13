@@ -8,12 +8,12 @@ import (
 )
 
 var (
-	globalClient  *client
+	globalClient  *Client
 	fakeDataStore = make(map[string]int)
 )
 
 func TestNewClient(t *testing.T) {
-	c, err := NewClient("sqlite3", "file::memory:?mode=memory&cache=shared", clientConfig{
+	c, err := NewGormClient("sqlite3", "file::memory:?mode=memory&cache=shared", clientConfig{
 		WorkerSleepTime: time.Second / 10,
 	})
 	assert.Nil(t, err)

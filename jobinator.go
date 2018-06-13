@@ -1,109 +1,10 @@
 package jobinator
 
 import (
-	"fmt"
-	"strings"
-	"sync"
-
-	"github.com/blasphemy/jobinator/status"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/vmihailenco/msgpack"
 )
 
-var (
-	validDrivers = []string{"sqlite3"}
-)
-
-func NewClient(dbtype string, dbconn string, config clientConfig) (*client, error) {
-	err := driverIsValid(dbtype)
-	if err != nil {
-		return nil, err
-	}
-	db, err := gorm.Open(dbtype, dbconn)
-	db.AutoMigrate(&job{})
-	if err != nil {
-		return nil, err
-	}
-	newc := &client{
-		db:          db,
-		workerFuncs: make(map[string]WorkerFunc),
-		config:      config,
-		dbLock:      sync.Mutex{},
-	}
-	return newc, nil
-}
-
-func driverIsValid(driverName string) error {
-	for _, x := range validDrivers {
-		if driverName == x {
-			return nil
-		}
-	}
-	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", driverName, strings.Join(validDrivers, " "))
-}
-
-func (c *client) RegisterWorker(name string, wf WorkerFunc) {
-	c.workerFuncs[name] = wf
-}
-
-func (c *client) executeWorker(name string, ref *jobRef) error {
-	_, ok := c.workerFuncs[name]
-	if !ok {
-		return fmt.Errorf("Worker %s is not available", name)
-	}
-	err := c.workerFuncs[name](ref)
-	return err
-}
-
-func (c *client) EnqueueJob(name string, args interface{}) error {
-	contextMsg, err := msgpack.Marshal(args)
-	if err != nil {
-		return err
-	}
-	nj := &job{
-		Name:   name,
-		Args:   contextMsg,
-		Status: status.STATUS_ENQUEUED,
-	}
-	c.dbLock.Lock()
-	err = c.db.Save(nj).Error
-	c.dbLock.Unlock()
-	return err
-}
-
-func (c *client) selectJob() (*job, error) {
-	wf := []string{}
-	for x := range c.workerFuncs {
-		wf = append(wf, x)
-	}
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
-	tx := c.db.Begin()
-	j := &job{}
-	statuses := []int{
-		status.STATUS_ENQUEUED,
-		status.STATUS_RETRY,
-	}
-	err := tx.First(j, "status in (?) AND name in (?)", statuses, wf).Error
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	err = tx.Model(j).Update("status", status.STATUS_RUNNING).Error
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	err = tx.Commit().Error
-	if err != nil {
-		return nil, err
-	}
-	return j, nil
-}
-
-func (c *client) ExecuteOneJob() error {
+func (c *Client) ExecuteOneJob() error {
 	j, err := c.selectJob()
 	if err != nil {
 		return err
@@ -126,40 +27,25 @@ func (j *jobRef) ScanArgs(v interface{}) error {
 	return err
 }
 
-func (c *client) markJobFinished(j *job) {
-	c.db.Model(j).Update("status", status.STATUS_DONE)
-}
-
-func (c *client) pendingJobs() (int, error) {
-	var n int
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
-	err := c.db.Model(&job{}).Where("status in (?)", []int{status.STATUS_ENQUEUED, status.STATUS_RETRY}).Count(&n).Error
-	if err != nil {
-		return 0, err
-	}
-	return n, nil
-}
-
-func (c *client) stopAllWorkers() {
+func (c *Client) stopAllWorkers() {
 	for _, x := range c.workers {
 		x.Stop()
 	}
 }
 
-func (c *client) stopAllWorkersBlocking() {
+func (c *Client) stopAllWorkersBlocking() {
 	for _, x := range c.workers {
 		x.StopBlocking()
 	}
 }
 
-func (c *client) startAllWorkers() {
+func (c *Client) startAllWorkers() {
 	for _, x := range c.workers {
 		x.Start()
 	}
 }
 
-func (c *client) destroyAllWorkers() {
+func (c *Client) destroyAllWorkers() {
 	for _, x := range c.workers {
 		if x.IsRunning() {
 			x.Stop()

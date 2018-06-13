@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (c *client) NewBackgroundWorker() *BackgroundWorker {
+func (c *Client) NewBackgroundWorker() *BackgroundWorker {
 	bw := &BackgroundWorker{
 		running:  false,
 		c:        c,

@@ -3,9 +3,22 @@ package jobinator
 import (
 	"sync"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
+
+type InternalClient interface {
+	EnqueueJob(string, interface{}) error
+	selectJob() (*job, error)
+	markJobFinished(*job)
+	pendingJobs() (int, error)
+	RegisterWorker(string, WorkerFunc)
+	executeWorker(string, *jobRef) error
+}
+
+type Client struct {
+	InternalClient
+	workers []*BackgroundWorker
+	config  clientConfig
+}
 
 type job struct {
 	ID        int64
@@ -17,26 +30,18 @@ type job struct {
 
 type jobRef struct {
 	argData []byte
-	c       *client
+	c       *Client
 	j       *job
 }
 
 type WorkerFunc func(j *jobRef) error
-
-type client struct {
-	db          *gorm.DB
-	workerFuncs map[string]WorkerFunc
-	config      clientConfig
-	workers     []*BackgroundWorker
-	dbLock      sync.Mutex
-}
 
 type clientConfig struct {
 	WorkerSleepTime time.Duration
 }
 
 type BackgroundWorker struct {
-	c        *client
+	c        *Client
 	quitChan chan bool
 	running  bool
 	runMutex sync.Mutex
