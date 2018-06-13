@@ -147,3 +147,12 @@ func (c *client) startAllWorkers() {
 		x.Start()
 	}
 }
+
+func (c *client) destroyAllWorkers() {
+	for _, x := range c.workers {
+		if x.IsRunning() {
+			x.Stop()
+		}
+	}
+	c.workers = []*BackgroundWorker{}
+}
