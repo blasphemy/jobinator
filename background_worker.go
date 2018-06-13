@@ -10,6 +10,7 @@ func (c *client) NewBackgroundWorker() *BackgroundWorker {
 		running: false,
 		c:       c,
 	}
+	c.workers = append(c.workers, bw)
 	return bw
 }
 

@@ -26,6 +26,7 @@ type client struct {
 	db          *gorm.DB
 	workerFuncs map[string]WorkerFunc
 	config      clientConfig
+	workers     []*BackgroundWorker
 }
 
 type clientConfig struct {

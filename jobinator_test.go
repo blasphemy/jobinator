@@ -79,9 +79,7 @@ func TestBackgroundWorker(t *testing.T) {
 		bw.Start()
 	}
 	time.Sleep(time.Second * 5)
-	for _, x := range workers {
-		x.Stop()
-	}
+	globalClient.stopAllWorkers()
 	for _, x := range workers {
 		assert.False(t, x.running)
 	}

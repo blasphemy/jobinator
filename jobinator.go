@@ -136,3 +136,9 @@ func (c *client) pendingJobs() (int, error) {
 	}
 	return n, nil
 }
+
+func (c *client) stopAllWorkers() {
+	for _, x := range c.workers {
+		x.Stop()
+	}
+}
