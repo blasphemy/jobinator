@@ -1,0 +1,9 @@
+package status
+
+const (
+	STATUS_ENQUEUED = iota
+	STATUS_RUNNING
+	STATUS_DONE
+	STATUS_RETRY
+	STATUS_FAILED
+)
