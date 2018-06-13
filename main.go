@@ -1,7 +1,7 @@
 package jobinator
 
 import (
-	"jobinator/status"
+	"github.com/blasphemy/jobinator/status"
 	"log"
 	"strings"
 	"time"
