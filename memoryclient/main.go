@@ -45,6 +45,7 @@ func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
 	for _, x := range m.jobs {
 		if m.listContains(x.Name) {
 			if x.Status == status.STATUS_ENQUEUED || x.Status == status.STATUS_RETRY {
+				x.Status = status.STATUS_RUNNING
 				return x, nil
 			}
 		}
