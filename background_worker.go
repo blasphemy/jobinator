@@ -5,6 +5,13 @@ import (
 	"time"
 )
 
+type BackgroundWorker struct {
+	c        *Client
+	quitChan chan bool
+	running  bool
+	runMutex sync.Mutex
+}
+
 func (c *Client) NewBackgroundWorker() *BackgroundWorker {
 	bw := &BackgroundWorker{
 		running:  false,

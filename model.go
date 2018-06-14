@@ -1,7 +1,6 @@
 package jobinator
 
 import (
-	"sync"
 	"time"
 )
 
@@ -31,11 +30,4 @@ type WorkerFunc func(j *jobRef) error
 
 type clientConfig struct {
 	WorkerSleepTime time.Duration
-}
-
-type BackgroundWorker struct {
-	c        *Client
-	quitChan chan bool
-	running  bool
-	runMutex sync.Mutex
 }
