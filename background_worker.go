@@ -60,13 +60,15 @@ func (bw *BackgroundWorker) Start() {
 
 //Stop stops the background worker. This is non blocking, so it may take some time before the background worker is fully stopped. Use IsRunning() to see if it's still running.
 func (bw *BackgroundWorker) Stop() {
-	bw.quitChan <- false
+	if bw.IsRunning() {
+		bw.quitChan <- true
+	}
 }
 
 //StopBlocking stops the background worker. It will block until the background worker has stopped running.
 func (bw *BackgroundWorker) StopBlocking() {
 	bw.Stop()
 	for bw.IsRunning() == true {
-		time.Sleep(1 * time.Second)
+		time.Sleep(bw.c.config.WorkerSleepTime / 2)
 	}
 }

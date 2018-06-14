@@ -86,6 +86,7 @@ type testArgs struct {
 }
 
 var td = make(map[string]int)
+var tdLock = sync.Mutex{}
 
 func TestEmpty(t *testing.T) {
 	c = newMockClient(ClientConfig{
@@ -101,7 +102,9 @@ func TestRegisterWorker(t *testing.T) {
 		if err != nil {
 			return err
 		}
+		tdLock.Lock()
 		td["NUM"] += args.Amount
+		tdLock.Unlock()
 		return nil
 	}
 	c.RegisterWorker("inc", wf)
@@ -119,4 +122,26 @@ func TestExecuteOneJob(t *testing.T) {
 	err := c.ExecuteOneJob()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, td["NUM"])
+}
+
+func TestBackgroundWokers(t *testing.T) {
+	td["NUM"] = 0
+	amount := 5
+	ta := testArgs{
+		Amount: 1,
+	}
+
+	for i := 0; i < amount; i++ {
+		c.EnqueueJob("inc", ta)
+	}
+	for i := 0; i < 4; i++ {
+		c.NewBackgroundWorker()
+	}
+	c.StartAllWorkers()
+	time.Sleep(time.Second)
+	c.StopAllWorkersBlocking()
+	for _, x := range c.workers {
+		assert.False(t, x.IsRunning())
+	}
+	assert.Equal(t, amount, td["NUM"])
 }

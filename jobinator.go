@@ -39,6 +39,9 @@ func (c *Client) ExecuteOneJob() error {
 	if err != nil {
 		return err
 	}
+	if j == nil {
+		return nil
+	}
 	ja := &JobRef{
 		argData: j.Args,
 		j:       j,
