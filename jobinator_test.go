@@ -1,6 +1,7 @@
 package jobinator
 
 import (
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -178,4 +179,25 @@ func TestDestroyAllWorkers(t *testing.T) {
 	assert.NotZero(t, len(c.workers))
 	c.DestroyAllWorkers()
 	assert.Zero(t, len(c.workers))
+}
+
+func TestRetry(t *testing.T) {
+	td["NUM"] = 0
+	wf := func(j *JobRef) error {
+		tdLock.Lock()
+		defer tdLock.Unlock()
+		td["NUM"]++
+		return errors.New("should error")
+	}
+	c.RegisterWorker("retry_test", wf)
+	c.EnqueueJob("retry_test", nil, JobConfig{
+		MaxRetry: 1,
+	})
+	c.NewBackgroundWorker()
+	c.NewBackgroundWorker()
+	c.StartAllWorkers()
+	time.Sleep(time.Second)
+	c.DestroyAllWorkers()
+	//num should be 2, one for the initial try, one for the retry
+	assert.Equal(t, 2, td["NUM"])
 }

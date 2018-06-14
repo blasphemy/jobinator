@@ -45,7 +45,7 @@ func (c *Client) backgroundExecute() {
 	err = c.executeWorker(j.Name, ja)
 	if err != nil {
 		c.IncRetryCount(j)
-		if j.RetryCount >= j.MaxRetry {
+		if j.RetryCount > j.MaxRetry {
 			c.SetStatus(j, status.Failed)
 			return
 		}
