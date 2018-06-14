@@ -145,3 +145,19 @@ func TestBackgroundWokers(t *testing.T) {
 	}
 	assert.Equal(t, amount, td["NUM"])
 }
+
+func TestStopAllWorkers(t *testing.T) {
+	c.StartAllWorkers()
+	time.Sleep(1 * time.Second)
+	c.StopAllWorkers()
+	time.Sleep(time.Second)
+	for _, x := range c.workers {
+		assert.False(t, x.IsRunning())
+	}
+}
+
+func TestDestroyAllWorkers(t *testing.T) {
+	assert.NotZero(t, len(c.workers))
+	c.DestroyAllWorkers()
+	assert.Zero(t, len(c.workers))
+}
