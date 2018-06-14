@@ -10,14 +10,7 @@ type InternalClient interface {
 	selectJob() (*job, error)
 	markJobFinished(*job)
 	pendingJobs() (int, error)
-	RegisterWorker(string, WorkerFunc)
-	executeWorker(string, *jobRef) error
-}
-
-type Client struct {
-	InternalClient
-	workers []*BackgroundWorker
-	config  clientConfig
+	InternalRegisterWorker(string, WorkerFunc)
 }
 
 type job struct {

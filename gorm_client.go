@@ -12,9 +12,9 @@ import (
 )
 
 type GormClient struct {
-	db          *gorm.DB
-	dbLock      sync.Mutex
-	workerFuncs map[string]WorkerFunc
+	db     *gorm.DB
+	dbLock sync.Mutex
+	wfList []string
 }
 
 func NewGormClient(dbtype string, dbconn string, config clientConfig) (*Client, error) {
@@ -28,14 +28,15 @@ func NewGormClient(dbtype string, dbconn string, config clientConfig) (*Client, 
 		return nil, err
 	}
 	newgc := &GormClient{
-		db:          db,
-		dbLock:      sync.Mutex{},
-		workerFuncs: make(map[string]WorkerFunc),
+		db:     db,
+		dbLock: sync.Mutex{},
+		wfList: []string{},
 	}
 	newc := &Client{
 		newgc,
 		[]*BackgroundWorker{},
 		config,
+		make(map[string]WorkerFunc),
 	}
 	return newc, nil
 }
@@ -50,17 +51,8 @@ func gormDriverIsValid(driverName string) error {
 	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", driverName, strings.Join(vd, " "))
 }
 
-func (c *GormClient) RegisterWorker(name string, wf WorkerFunc) {
-	c.workerFuncs[name] = wf
-}
-
-func (c *GormClient) executeWorker(name string, ref *jobRef) error {
-	_, ok := c.workerFuncs[name]
-	if !ok {
-		return fmt.Errorf("Worker %s is not available", name)
-	}
-	err := c.workerFuncs[name](ref)
-	return err
+func (c *GormClient) InternalRegisterWorker(name string, wf WorkerFunc) {
+	c.wfList = append(c.wfList, name)
 }
 
 func (c *GormClient) EnqueueJob(name string, args interface{}) error {
@@ -81,7 +73,7 @@ func (c *GormClient) EnqueueJob(name string, args interface{}) error {
 
 func (c *GormClient) selectJob() (*job, error) {
 	wf := []string{}
-	for x := range c.workerFuncs {
+	for _, x := range c.wfList {
 		wf = append(wf, x)
 	}
 	c.dbLock.Lock()

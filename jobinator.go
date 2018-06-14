@@ -1,8 +1,22 @@
 package jobinator
 
 import (
+	"fmt"
+
 	"github.com/vmihailenco/msgpack"
 )
+
+type Client struct {
+	InternalClient
+	workers     []*BackgroundWorker
+	config      clientConfig
+	workerFuncs map[string]WorkerFunc
+}
+
+func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
+	c.workerFuncs[name] = wf
+	c.InternalRegisterWorker(name, wf)
+}
 
 func (c *Client) ExecuteOneJob() error {
 	j, err := c.selectJob()
@@ -52,4 +66,13 @@ func (c *Client) destroyAllWorkers() {
 		}
 	}
 	c.workers = []*BackgroundWorker{}
+}
+
+func (c *Client) executeWorker(name string, ref *jobRef) error {
+	_, ok := c.workerFuncs[name]
+	if !ok {
+		return fmt.Errorf("Worker %s is not available", name)
+	}
+	err := c.workerFuncs[name](ref)
+	return err
 }
