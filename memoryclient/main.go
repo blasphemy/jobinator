@@ -1,6 +1,11 @@
 package memoryclient
 
-import "github.com/blasphemy/jobinator"
+import (
+	"sync"
+
+	"github.com/blasphemy/jobinator"
+	"github.com/blasphemy/jobinator/status"
+)
 
 /*
 type InternalClient interface {
@@ -13,13 +18,47 @@ type InternalClient interface {
 */
 
 type MemoryClient struct {
+	jobs    []*jobinator.Job
+	joblock sync.Mutex
+	wfList  []string
 }
 
-func (m *MemoryClient) InternalEnqueueJob(string, interface{}) error {
+func NewMemoryClient(config jobinator.ClientConfig) *jobinator.Client {
+	newmc := &MemoryClient{
+		jobs:    []*jobinator.Job{},
+		joblock: sync.Mutex{},
+		wfList:  []string{},
+	}
+	newc := jobinator.NewClient(newmc, config)
+	return newc
+}
+
+func (m *MemoryClient) InternalEnqueueJob(j *jobinator.Job) error {
+	m.joblock.Lock()
+	m.jobs = append(m.jobs)
+	m.joblock.Unlock()
 	return nil
 }
 
+func (m *MemoryClient) listContains(name string) bool {
+	for _, x := range m.wfList {
+		if name == x {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	for _, x := range m.jobs {
+		if m.listContains(x.Name) {
+			if x.Status == status.STATUS_ENQUEUED || x.Status == status.STATUS_RETRY {
+				return x, nil
+			}
+		}
+	}
 	return nil, nil
 }
 
