@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//BackgroundWorker represents a worker thread that runs in the background
 type BackgroundWorker struct {
 	c        *Client
 	quitChan chan bool
@@ -12,6 +13,7 @@ type BackgroundWorker struct {
 	runMutex sync.Mutex
 }
 
+//NewBackgroundWorker returns a background worker handle, as well as registers it in the client. You can either keep it to start it yourself or use the client to start all background worker threads.
 func (c *Client) NewBackgroundWorker() *BackgroundWorker {
 	bw := &BackgroundWorker{
 		running:  false,
@@ -40,12 +42,14 @@ func (bw *BackgroundWorker) backgroundWorkerFunc() {
 	}
 }
 
+//IsRunning returns whether or not the background worker is running.
 func (bw *BackgroundWorker) IsRunning() bool {
 	bw.runMutex.Lock()
 	defer bw.runMutex.Unlock()
 	return bw.running
 }
 
+//Start starts the background worker. If it is already running, nothing happens.
 func (bw *BackgroundWorker) Start() {
 	if bw.IsRunning() {
 		return
@@ -54,10 +58,12 @@ func (bw *BackgroundWorker) Start() {
 	go bw.backgroundWorkerFunc()
 }
 
+//Stop stops the background worker. This is non blocking, so it may take some time before the background worker is fully stopped. Use IsRunning() to see if it's still running.
 func (bw *BackgroundWorker) Stop() {
 	bw.quitChan <- false
 }
 
+//StopBlocking stops the background worker. It will block until the background worker has stopped running.
 func (bw *BackgroundWorker) StopBlocking() {
 	bw.Stop()
 	for bw.IsRunning() == true {
