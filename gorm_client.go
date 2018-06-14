@@ -7,15 +7,17 @@ import (
 
 	"github.com/blasphemy/jobinator/status"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/sqlite" //needed for sqlite support
 )
 
+//GormClient represents a client using a Gorm backend (SQL)
 type GormClient struct {
 	db     *gorm.DB
 	dbLock sync.Mutex
 	wfList []string
 }
 
+//NewGormClient returns a new *Client backed by gorm. It requires a driver type and connection string, as well as a ClientConfig.
 func NewGormClient(dbtype string, dbconn string, config ClientConfig) (*Client, error) {
 	err := gormDriverIsValid(dbtype)
 	if err != nil {
@@ -45,10 +47,12 @@ func gormDriverIsValid(driverName string) error {
 	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", driverName, strings.Join(vd, " "))
 }
 
+//InternalRegisterWorker adds a worker to the list of registered workers for the internal client. This allows it to determine which jobs this node can execute.
 func (c *GormClient) InternalRegisterWorker(name string, wf WorkerFunc) {
 	c.wfList = append(c.wfList, name)
 }
 
+//InternalEnqueueJob queues up a job.
 func (c *GormClient) InternalEnqueueJob(j *Job) error {
 	c.dbLock.Lock()
 	err := c.db.Save(j).Error
@@ -56,6 +60,7 @@ func (c *GormClient) InternalEnqueueJob(j *Job) error {
 	return err
 }
 
+//InternalSelectJob selects a job from the database and marks it as in progress.
 func (c *GormClient) InternalSelectJob() (*Job, error) {
 	wf := []string{}
 	for _, x := range c.wfList {
@@ -86,11 +91,13 @@ func (c *GormClient) InternalSelectJob() (*Job, error) {
 	return j, nil
 }
 
+//InternalMarkJobFinished marks a job as done.
 func (c *GormClient) InternalMarkJobFinished(j *Job) error {
 	err := c.db.Model(j).Update("status", status.STATUS_DONE).Error
 	return err
 }
 
+//InternalPendingJobs returns the amount of jobs that are pending.
 func (c *GormClient) InternalPendingJobs() (int, error) {
 	var n int
 	c.dbLock.Lock()
