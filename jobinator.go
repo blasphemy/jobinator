@@ -19,7 +19,7 @@ func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
 }
 
 func (c *Client) ExecuteOneJob() error {
-	j, err := c.selectJob()
+	j, err := c.SelectJob()
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (c *Client) ExecuteOneJob() error {
 	if err != nil {
 		return err
 	}
-	c.markJobFinished(j)
+	c.MarkJobFinished(j)
 	return nil
 }
 

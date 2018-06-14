@@ -7,9 +7,9 @@ import (
 
 type InternalClient interface {
 	EnqueueJob(string, interface{}) error
-	selectJob() (*job, error)
-	markJobFinished(*job)
-	pendingJobs() (int, error)
+	SelectJob() (*job, error)
+	MarkJobFinished(*job) error
+	PendingJobs() (int, error)
 	InternalRegisterWorker(string, WorkerFunc)
 }
 

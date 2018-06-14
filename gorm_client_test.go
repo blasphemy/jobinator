@@ -86,7 +86,7 @@ func TestBackgroundWorker(t *testing.T) {
 
 func TestPendingJobs(t *testing.T) {
 	globalClient.EnqueueJob("willNeverExist", nil)
-	count, err := globalClient.pendingJobs()
+	count, err := globalClient.PendingJobs()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, count)
 }

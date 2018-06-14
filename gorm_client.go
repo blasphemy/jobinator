@@ -71,7 +71,7 @@ func (c *GormClient) EnqueueJob(name string, args interface{}) error {
 	return err
 }
 
-func (c *GormClient) selectJob() (*job, error) {
+func (c *GormClient) SelectJob() (*job, error) {
 	wf := []string{}
 	for _, x := range c.wfList {
 		wf = append(wf, x)
@@ -101,11 +101,12 @@ func (c *GormClient) selectJob() (*job, error) {
 	return j, nil
 }
 
-func (c *GormClient) markJobFinished(j *job) {
-	c.db.Model(j).Update("status", status.STATUS_DONE)
+func (c *GormClient) MarkJobFinished(j *job) error {
+	err := c.db.Model(j).Update("status", status.STATUS_DONE).Error
+	return err
 }
 
-func (c *GormClient) pendingJobs() (int, error) {
+func (c *GormClient) PendingJobs() (int, error) {
 	var n int
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
