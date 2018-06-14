@@ -106,6 +106,7 @@ func (c *Client) markJobFinished(j *Job) error {
 	return c.InternalMarkJobFinished(j)
 }
 
+//EnqueueJob queues up a job to be run by a worker.
 func (c *Client) EnqueueJob(name string, args interface{}) error {
 	ctx, err := msgpack.Marshal(args)
 	if err != nil {
@@ -124,6 +125,7 @@ func (c *Client) EnqueueJob(name string, args interface{}) error {
 	return c.InternalEnqueueJob(j)
 }
 
+//PendingJobs returns the number of pending jobs.
 func (c *Client) PendingJobs() (int, error) {
 	return c.InternalPendingJobs()
 }
