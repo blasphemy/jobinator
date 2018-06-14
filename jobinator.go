@@ -35,7 +35,7 @@ func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
 
 //ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action
 func (c *Client) ExecuteOneJob() error {
-	j, err := c.SelectJob()
+	j, err := c.selectJob()
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (c *Client) ExecuteOneJob() error {
 	if err != nil {
 		return err
 	}
-	c.MarkJobFinished(j)
+	c.markJobFinished(j)
 	return nil
 }
 
@@ -58,28 +58,32 @@ func (j *JobRef) ScanArgs(v interface{}) error {
 	return err
 }
 
+//StopAllWorkers stops all workers registered with the client. This is non blocking, so you may need to wait before they are all finished.
 func (c *Client) StopAllWorkers() {
 	for _, x := range c.workers {
 		x.Stop()
 	}
 }
 
+//StopAllWorkersBlocking stops all workers registered with the client. This is blocking.
 func (c *Client) StopAllWorkersBlocking() {
 	for _, x := range c.workers {
 		x.StopBlocking()
 	}
 }
 
+//StartAllWorkers starts all workers registered with the client.
 func (c *Client) StartAllWorkers() {
 	for _, x := range c.workers {
 		x.Start()
 	}
 }
 
+//DestroyAllWorkers stops all workers registered with the client and destroys them.
 func (c *Client) DestroyAllWorkers() {
 	for _, x := range c.workers {
 		if x.IsRunning() {
-			x.Stop()
+			x.StopBlocking()
 		}
 	}
 	c.workers = []*BackgroundWorker{}
@@ -94,11 +98,11 @@ func (c *Client) executeWorker(name string, ref *JobRef) error {
 	return err
 }
 
-func (c *Client) SelectJob() (*Job, error) {
+func (c *Client) selectJob() (*Job, error) {
 	return c.InternalSelectJob()
 }
 
-func (c *Client) MarkJobFinished(j *Job) error {
+func (c *Client) markJobFinished(j *Job) error {
 	return c.InternalMarkJobFinished(j)
 }
 
