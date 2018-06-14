@@ -5,7 +5,7 @@ const (
 	Pending = iota
 	//Running represents a job that is in progress
 	Running
-	//Done is a job that has finished succesfully
+	//Done is a job that has finished successfully
 	Done
 	//Retry is a job that has failed but is ready to be retried
 	Retry
