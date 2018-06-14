@@ -33,6 +33,24 @@ func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
 	c.InternalRegisterWorker(name, wf)
 }
 
+func (c *Client) backgroundExecute() {
+	j, err := c.selectJob()
+	if err != nil || j == nil {
+		return
+	}
+	ja := &JobRef{
+		j: j,
+		c: c,
+	}
+	err = c.executeWorker(j.Name, ja)
+	if err != nil {
+		//RETRY LOGIC
+		return
+	}
+	c.markJobFinished(j)
+	return
+}
+
 //ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action
 func (c *Client) ExecuteOneJob() error {
 	j, err := c.selectJob()
@@ -40,7 +58,7 @@ func (c *Client) ExecuteOneJob() error {
 		return err
 	}
 	if j == nil {
-		return nil
+		return fmt.Errorf("No Jobs available")
 	}
 	ja := &JobRef{
 		j: j,

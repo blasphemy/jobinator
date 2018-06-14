@@ -37,7 +37,7 @@ func (bw *BackgroundWorker) backgroundWorkerFunc() {
 			return
 		default:
 			time.Sleep(bw.c.config.WorkerSleepTime)
-			bw.c.ExecuteOneJob()
+			bw.c.backgroundExecute()
 		}
 	}
 }
