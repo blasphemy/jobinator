@@ -128,7 +128,9 @@ func TestEnqueueJob(t *testing.T) {
 	args := &testArgs{
 		Amount: 1,
 	}
-	err := c.EnqueueJob("inc", args)
+	err := c.EnqueueJob("inc", args, JobConfig{
+		MaxRetry: 0,
+	})
 	assert.Nil(t, err)
 }
 
@@ -146,7 +148,9 @@ func TestBackgroundWokers(t *testing.T) {
 	}
 
 	for i := 0; i < amount; i++ {
-		c.EnqueueJob("inc", ta)
+		c.EnqueueJob("inc", ta, JobConfig{
+			MaxRetry: 0,
+		})
 	}
 	for i := 0; i < 4; i++ {
 		c.NewBackgroundWorker()

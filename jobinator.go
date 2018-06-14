@@ -128,7 +128,7 @@ func (c *Client) selectJob() (*Job, error) {
 }
 
 //EnqueueJob queues up a job to be run by a worker.
-func (c *Client) EnqueueJob(name string, args interface{}) error {
+func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) error {
 	ctx, err := msgpack.Marshal(args)
 	if err != nil {
 		return err
@@ -138,10 +138,11 @@ func (c *Client) EnqueueJob(name string, args interface{}) error {
 		return err
 	}
 	j := &Job{
-		ID:     id.String(),
-		Name:   name,
-		Args:   ctx,
-		Status: status.Pending,
+		ID:       id.String(),
+		Name:     name,
+		Args:     ctx,
+		Status:   status.Pending,
+		MaxRetry: config.MaxRetry,
 	}
 	return c.InternalEnqueueJob(j)
 }

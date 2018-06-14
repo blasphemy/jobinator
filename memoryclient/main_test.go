@@ -51,6 +51,8 @@ func TestEnqueJob(t *testing.T) {
 	}
 	g.EnqueueJob("inc", &testArgs{
 		Amount: 1,
+	}, jobinator.JobConfig{
+		MaxRetry: 0,
 	})
 }
 
@@ -61,7 +63,9 @@ func TestExecuteJob(t *testing.T) {
 }
 
 func TestPendingJobs(t *testing.T) {
-	g.EnqueueJob("willNotExecute", nil)
+	g.EnqueueJob("willNotExecute", nil, jobinator.JobConfig{
+		MaxRetry: 0,
+	})
 	num, err := g.PendingJobs()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, num)
