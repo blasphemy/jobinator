@@ -24,9 +24,8 @@ type Job struct {
 
 //JobRef is a reference to a job (and it's client). It is passed to a WorkerFunc to get the job args
 type JobRef struct {
-	argData []byte
-	c       *Client
-	j       *Job
+	c *Client
+	j *Job
 }
 
 //WorkerFunc is the type of function that must be implemented to be a worker
