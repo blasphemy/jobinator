@@ -75,9 +75,9 @@ func TestBackgroundWorker(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		globalClient.NewBackgroundWorker()
 	}
-	globalClient.startAllWorkers()
+	globalClient.StartAllWorkers()
 	time.Sleep(time.Second * 5)
-	globalClient.stopAllWorkersBlocking()
+	globalClient.StopAllWorkersBlocking()
 	for _, x := range globalClient.workers {
 		assert.False(t, x.IsRunning())
 	}
@@ -92,6 +92,6 @@ func TestPendingJobs(t *testing.T) {
 }
 
 func TestDestroyAllWorkers(t *testing.T) {
-	globalClient.destroyAllWorkers()
+	globalClient.DestroyAllWorkers()
 	assert.Equal(t, 0, len(globalClient.workers))
 }

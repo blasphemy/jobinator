@@ -58,25 +58,25 @@ func (j *JobRef) ScanArgs(v interface{}) error {
 	return err
 }
 
-func (c *Client) stopAllWorkers() {
+func (c *Client) StopAllWorkers() {
 	for _, x := range c.workers {
 		x.Stop()
 	}
 }
 
-func (c *Client) stopAllWorkersBlocking() {
+func (c *Client) StopAllWorkersBlocking() {
 	for _, x := range c.workers {
 		x.StopBlocking()
 	}
 }
 
-func (c *Client) startAllWorkers() {
+func (c *Client) StartAllWorkers() {
 	for _, x := range c.workers {
 		x.Start()
 	}
 }
 
-func (c *Client) destroyAllWorkers() {
+func (c *Client) DestroyAllWorkers() {
 	for _, x := range c.workers {
 		if x.IsRunning() {
 			x.Stop()
