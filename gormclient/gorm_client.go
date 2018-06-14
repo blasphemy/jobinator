@@ -71,16 +71,12 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
 	j := &jobinator.Job{}
-	statuses := []int{
-		status.STATUS_PENDING,
-		status.STATUS_RETRY,
-	}
-	err := tx.First(j, "status in (?) AND name in (?)", statuses, wf).Error
+	err := tx.First(j, "status in (?) AND name in (?)", []int{status.Pending, status.Retry}, wf).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	err = tx.Model(j).Update("status", status.STATUS_RUNNING).Error
+	err = tx.Model(j).Update("status", status.Running).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -94,7 +90,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 
 //InternalMarkJobFinished marks a job as done.
 func (c *GormClient) InternalMarkJobFinished(j *jobinator.Job) error {
-	err := c.db.Model(j).Update("status", status.STATUS_DONE).Error
+	err := c.db.Model(j).Update("status", status.Done).Error
 	return err
 }
 
@@ -103,7 +99,7 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 	var n int
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
-	err := c.db.Model(&jobinator.Job{}).Where("status in (?)", []int{status.STATUS_PENDING, status.STATUS_RETRY}).Count(&n).Error
+	err := c.db.Model(&jobinator.Job{}).Where("status in (?)", []int{status.Pending, status.Retry}).Count(&n).Error
 	if err != nil {
 		return 0, err
 	}

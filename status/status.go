@@ -1,9 +1,14 @@
 package status
 
 const (
-	STATUS_PENDING = iota
-	STATUS_RUNNING
-	STATUS_DONE
-	STATUS_RETRY
-	STATUS_FAILED
+	//Pending represents a job that has not yet run
+	Pending = iota
+	//Running represents a job that is in progress
+	Running
+	//Done is a job that has finished succesfully
+	Done
+	//Retry is a job that has failed but is ready to be retried
+	Retry
+	//Failed is a job that has exceeded the retry limit and given up
+	Failed
 )
