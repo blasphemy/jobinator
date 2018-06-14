@@ -32,12 +32,7 @@ func NewGormClient(dbtype string, dbconn string, config clientConfig) (*Client, 
 		dbLock: sync.Mutex{},
 		wfList: []string{},
 	}
-	newc := &Client{
-		newgc,
-		[]*BackgroundWorker{},
-		config,
-		make(map[string]WorkerFunc),
-	}
+	newc := NewClient(newgc, config)
 	return newc, nil
 }
 

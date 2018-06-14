@@ -13,6 +13,16 @@ type Client struct {
 	workerFuncs map[string]WorkerFunc
 }
 
+func NewClient(ic InternalClient, config clientConfig) *Client {
+	newc := &Client{
+		ic,
+		[]*BackgroundWorker{},
+		config,
+		make(map[string]WorkerFunc),
+	}
+	return newc
+}
+
 func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
 	c.workerFuncs[name] = wf
 	c.InternalRegisterWorker(name, wf)
