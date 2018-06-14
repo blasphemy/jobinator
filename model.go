@@ -6,13 +6,13 @@ import (
 
 type InternalClient interface {
 	InternalEnqueueJob(string, interface{}) error
-	InternalSelectJob() (*job, error)
-	InternalMarkJobFinished(*job) error
+	InternalSelectJob() (*Job, error)
+	InternalMarkJobFinished(*Job) error
 	InternalPendingJobs() (int, error)
 	InternalRegisterWorker(string, WorkerFunc)
 }
 
-type job struct {
+type Job struct {
 	ID        int64
 	Name      string
 	Args      []byte
@@ -23,7 +23,7 @@ type job struct {
 type jobRef struct {
 	argData []byte
 	c       *Client
-	j       *job
+	j       *Job
 }
 
 type WorkerFunc func(j *jobRef) error

@@ -77,11 +77,11 @@ func (c *Client) executeWorker(name string, ref *jobRef) error {
 	return err
 }
 
-func (c *Client) SelectJob() (*job, error) {
+func (c *Client) SelectJob() (*Job, error) {
 	return c.InternalSelectJob()
 }
 
-func (c *Client) MarkJobFinished(j *job) error {
+func (c *Client) MarkJobFinished(j *Job) error {
 	return c.InternalMarkJobFinished(j)
 }
 

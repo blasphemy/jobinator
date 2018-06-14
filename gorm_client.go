@@ -23,7 +23,7 @@ func NewGormClient(dbtype string, dbconn string, config clientConfig) (*Client, 
 		return nil, err
 	}
 	db, err := gorm.Open(dbtype, dbconn)
-	db.AutoMigrate(&job{})
+	db.AutoMigrate(&Job{})
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (c *GormClient) InternalEnqueueJob(name string, args interface{}) error {
 	if err != nil {
 		return err
 	}
-	nj := &job{
+	nj := &Job{
 		Name:   name,
 		Args:   contextMsg,
 		Status: status.STATUS_ENQUEUED,
@@ -71,7 +71,7 @@ func (c *GormClient) InternalEnqueueJob(name string, args interface{}) error {
 	return err
 }
 
-func (c *GormClient) InternalSelectJob() (*job, error) {
+func (c *GormClient) InternalSelectJob() (*Job, error) {
 	wf := []string{}
 	for _, x := range c.wfList {
 		wf = append(wf, x)
@@ -79,7 +79,7 @@ func (c *GormClient) InternalSelectJob() (*job, error) {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
-	j := &job{}
+	j := &Job{}
 	statuses := []int{
 		status.STATUS_ENQUEUED,
 		status.STATUS_RETRY,
@@ -101,7 +101,7 @@ func (c *GormClient) InternalSelectJob() (*job, error) {
 	return j, nil
 }
 
-func (c *GormClient) InternalMarkJobFinished(j *job) error {
+func (c *GormClient) InternalMarkJobFinished(j *Job) error {
 	err := c.db.Model(j).Update("status", status.STATUS_DONE).Error
 	return err
 }
@@ -110,7 +110,7 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 	var n int
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
-	err := c.db.Model(&job{}).Where("status in (?)", []int{status.STATUS_ENQUEUED, status.STATUS_RETRY}).Count(&n).Error
+	err := c.db.Model(&Job{}).Where("status in (?)", []int{status.STATUS_ENQUEUED, status.STATUS_RETRY}).Count(&n).Error
 	if err != nil {
 		return 0, err
 	}
