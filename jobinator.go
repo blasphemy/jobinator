@@ -8,6 +8,7 @@ import (
 	"github.com/vmihailenco/msgpack"
 )
 
+//Client is the main handle for a jobinator instance. It is where you will perform most actions.
 type Client struct {
 	InternalClient
 	workers     []*BackgroundWorker
@@ -15,6 +16,7 @@ type Client struct {
 	workerFuncs map[string]WorkerFunc
 }
 
+//NewClient will wrap a client implementation and return the resulting client. Meant to be used for implementing storage backends.
 func NewClient(ic InternalClient, config ClientConfig) *Client {
 	newc := &Client{
 		ic,
@@ -25,11 +27,13 @@ func NewClient(ic InternalClient, config ClientConfig) *Client {
 	return newc
 }
 
+//RegisterWorker registers a new workerfunc against it's identifier(name)
 func (c *Client) RegisterWorker(name string, wf WorkerFunc) {
 	c.workerFuncs[name] = wf
 	c.InternalRegisterWorker(name, wf)
 }
 
+//ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action
 func (c *Client) ExecuteOneJob() error {
 	j, err := c.SelectJob()
 	if err != nil {
@@ -48,6 +52,7 @@ func (c *Client) ExecuteOneJob() error {
 	return nil
 }
 
+//ScanArgs scans the job's arguments into your struct of choice.
 func (j *JobRef) ScanArgs(v interface{}) error {
 	err := msgpack.Unmarshal(j.argData, v)
 	return err
