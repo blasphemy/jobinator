@@ -9,11 +9,11 @@ import (
 type Client struct {
 	InternalClient
 	workers     []*BackgroundWorker
-	config      clientConfig
+	config      ClientConfig
 	workerFuncs map[string]WorkerFunc
 }
 
-func NewClient(ic InternalClient, config clientConfig) *Client {
+func NewClient(ic InternalClient, config ClientConfig) *Client {
 	newc := &Client{
 		ic,
 		[]*BackgroundWorker{},

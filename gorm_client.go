@@ -17,7 +17,7 @@ type GormClient struct {
 	wfList []string
 }
 
-func NewGormClient(dbtype string, dbconn string, config clientConfig) (*Client, error) {
+func NewGormClient(dbtype string, dbconn string, config ClientConfig) (*Client, error) {
 	err := gormDriverIsValid(dbtype)
 	if err != nil {
 		return nil, err

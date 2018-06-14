@@ -13,7 +13,7 @@ var (
 )
 
 func TestNewClient(t *testing.T) {
-	c, err := NewGormClient("sqlite3", "file::memory:?mode=memory&cache=shared", clientConfig{
+	c, err := NewGormClient("sqlite3", "file::memory:?mode=memory&cache=shared", ClientConfig{
 		WorkerSleepTime: time.Second / 10,
 	})
 	assert.Nil(t, err)

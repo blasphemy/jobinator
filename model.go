@@ -28,6 +28,6 @@ type jobRef struct {
 
 type WorkerFunc func(j *jobRef) error
 
-type clientConfig struct {
+type ClientConfig struct {
 	WorkerSleepTime time.Duration
 }
