@@ -35,7 +35,7 @@ func (c *Client) ExecuteOneJob() error {
 	if err != nil {
 		return err
 	}
-	ja := &jobRef{
+	ja := &JobRef{
 		argData: j.Args,
 		j:       j,
 		c:       c,
@@ -48,7 +48,7 @@ func (c *Client) ExecuteOneJob() error {
 	return nil
 }
 
-func (j *jobRef) ScanArgs(v interface{}) error {
+func (j *JobRef) ScanArgs(v interface{}) error {
 	err := msgpack.Unmarshal(j.argData, v)
 	return err
 }
@@ -80,7 +80,7 @@ func (c *Client) destroyAllWorkers() {
 	c.workers = []*BackgroundWorker{}
 }
 
-func (c *Client) executeWorker(name string, ref *jobRef) error {
+func (c *Client) executeWorker(name string, ref *JobRef) error {
 	_, ok := c.workerFuncs[name]
 	if !ok {
 		return fmt.Errorf("Worker %s is not available", name)

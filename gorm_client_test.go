@@ -26,7 +26,7 @@ func TestRegisterWorker(t *testing.T) {
 		NumToSet int
 		KeyToSet string
 	}
-	wf := func(j *jobRef) error {
+	wf := func(j *JobRef) error {
 		td := &testData{}
 		err := j.ScanArgs(td)
 		if err != nil {
@@ -64,7 +64,7 @@ func TestBackgroundWorker(t *testing.T) {
 	np := &thing{
 		number: 0,
 	}
-	wfIncNum := func(j *jobRef) error {
+	wfIncNum := func(j *JobRef) error {
 		np.number++
 		return nil
 	}

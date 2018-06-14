@@ -20,13 +20,13 @@ type Job struct {
 	Status    int
 }
 
-type jobRef struct {
+type JobRef struct {
 	argData []byte
 	c       *Client
 	j       *Job
 }
 
-type WorkerFunc func(j *jobRef) error
+type WorkerFunc func(j *JobRef) error
 
 type ClientConfig struct {
 	WorkerSleepTime time.Duration
