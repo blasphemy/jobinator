@@ -13,7 +13,7 @@ script:
 - go test . -v race
 - go test . -v -covermode=count -coverprofile=cover.out
 - go test ./memoryclient -v race
-- go test ./memoryclient -v covermode=count -coverprofile=cover2.out
+- go test ./memoryclient -v covermode=count -coverprofile=./cover2.out
 - cat cover.out >> cover_final.out
 - cat cover2.out >> cover_final.out
 - $HOME/gopath/bin/goveralls -coverprofile=cover_final.out -service=travis-ci -repotoken $COVERALLS_TOKEN
