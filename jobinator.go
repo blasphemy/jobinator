@@ -43,9 +43,8 @@ func (c *Client) ExecuteOneJob() error {
 		return nil
 	}
 	ja := &JobRef{
-		argData: j.Args,
-		j:       j,
-		c:       c,
+		j: j,
+		c: c,
 	}
 	err = c.executeWorker(j.Name, ja)
 	if err != nil {
@@ -57,7 +56,7 @@ func (c *Client) ExecuteOneJob() error {
 
 //ScanArgs scans the job's arguments into your struct of choice.
 func (j *JobRef) ScanArgs(v interface{}) error {
-	err := msgpack.Unmarshal(j.argData, v)
+	err := msgpack.Unmarshal(j.j.Args, v)
 	return err
 }
 
