@@ -221,3 +221,11 @@ func TestStopBlockingLongRunning(t *testing.T) {
 	}
 	c.DestroyAllWorkers()
 }
+
+func TestStartWorkerTwice(t *testing.T) {
+	c.NewBackgroundWorker()
+	c.StartAllWorkers()
+	c.StartAllWorkers()
+	time.Sleep(1)
+	c.DestroyAllWorkers()
+}
