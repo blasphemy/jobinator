@@ -44,7 +44,6 @@ func (c *Client) backgroundExecute() {
 	}
 	err = c.executeWorker(j.Name, ja)
 	if err != nil {
-		//say job has retried 3 times, max is 3 but retry counter is currently at 2.
 		c.IncRetryCount(j)
 		if j.RetryCount >= j.MaxRetry {
 			c.SetStatus(j, status.Failed)
