@@ -25,7 +25,7 @@ func NewMemoryClient(config jobinator.ClientConfig) *jobinator.Client {
 
 func (m *MemoryClient) InternalEnqueueJob(j *jobinator.Job) error {
 	m.joblock.Lock()
-	m.jobs = append(m.jobs)
+	m.jobs = append(m.jobs, j)
 	m.joblock.Unlock()
 	return nil
 }
