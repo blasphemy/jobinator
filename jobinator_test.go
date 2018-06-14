@@ -201,3 +201,22 @@ func TestRetry(t *testing.T) {
 	//num should be 2, one for the initial try, one for the retry
 	assert.Equal(t, 2, td["NUM"])
 }
+
+func TestStopBlockingLongRunning(t *testing.T) {
+	wf := func(j *JobRef) error {
+		time.Sleep(10 * time.Second)
+		return nil
+	}
+	c.RegisterWorker("sleep", wf)
+	c.EnqueueJob("sleep", nil, JobConfig{
+		MaxRetry: 0,
+	})
+	c.NewBackgroundWorker()
+	c.NewBackgroundWorker()
+	c.StartAllWorkers()
+	time.Sleep(1 * time.Second)
+	c.StopAllWorkersBlocking()
+	for _, x := range c.workers {
+		assert.False(t, x.IsRunning())
+	}
+}
