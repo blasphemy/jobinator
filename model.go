@@ -6,10 +6,10 @@ import (
 )
 
 type InternalClient interface {
-	EnqueueJob(string, interface{}) error
-	SelectJob() (*job, error)
-	MarkJobFinished(*job) error
-	PendingJobs() (int, error)
+	InternalEnqueueJob(string, interface{}) error
+	InternalSelectJob() (*job, error)
+	InternalMarkJobFinished(*job) error
+	InternalPendingJobs() (int, error)
 	InternalRegisterWorker(string, WorkerFunc)
 }
 

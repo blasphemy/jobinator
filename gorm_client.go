@@ -55,7 +55,7 @@ func (c *GormClient) InternalRegisterWorker(name string, wf WorkerFunc) {
 	c.wfList = append(c.wfList, name)
 }
 
-func (c *GormClient) EnqueueJob(name string, args interface{}) error {
+func (c *GormClient) InternalEnqueueJob(name string, args interface{}) error {
 	contextMsg, err := msgpack.Marshal(args)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (c *GormClient) EnqueueJob(name string, args interface{}) error {
 	return err
 }
 
-func (c *GormClient) SelectJob() (*job, error) {
+func (c *GormClient) InternalSelectJob() (*job, error) {
 	wf := []string{}
 	for _, x := range c.wfList {
 		wf = append(wf, x)
@@ -101,12 +101,12 @@ func (c *GormClient) SelectJob() (*job, error) {
 	return j, nil
 }
 
-func (c *GormClient) MarkJobFinished(j *job) error {
+func (c *GormClient) InternalMarkJobFinished(j *job) error {
 	err := c.db.Model(j).Update("status", status.STATUS_DONE).Error
 	return err
 }
 
-func (c *GormClient) PendingJobs() (int, error) {
+func (c *GormClient) InternalPendingJobs() (int, error) {
 	var n int
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()

@@ -76,3 +76,19 @@ func (c *Client) executeWorker(name string, ref *jobRef) error {
 	err := c.workerFuncs[name](ref)
 	return err
 }
+
+func (c *Client) SelectJob() (*job, error) {
+	return c.InternalSelectJob()
+}
+
+func (c *Client) MarkJobFinished(j *job) error {
+	return c.InternalMarkJobFinished(j)
+}
+
+func (c *Client) EnqueueJob(name string, args interface{}) error {
+	return c.InternalEnqueueJob(name, args)
+}
+
+func (c *Client) PendingJobs() (int, error) {
+	return c.InternalPendingJobs()
+}
