@@ -88,6 +88,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	return j, nil
 }
 
+//SetStatus sets the status for the job. See jobinator/status package for more info
 func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
@@ -107,6 +108,7 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 	return n, nil
 }
 
+//IncRetryCount increments the retry count for the job
 func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
@@ -114,6 +116,7 @@ func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
 	return err
 }
 
+//SetError sets the error and stacktrace on the job, usually occuring before a retry.
 func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
