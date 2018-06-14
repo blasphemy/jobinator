@@ -7,16 +7,6 @@ import (
 	"github.com/blasphemy/jobinator/status"
 )
 
-/*
-type InternalClient interface {
-	InternalEnqueueJob(string, interface{}) error
-	InternalSelectJob() (*job, error)
-	InternalMarkJobFinished(*job) error
-	InternalPendingJobs() (int, error)
-	InternalRegisterWorker(string, WorkerFunc)
-}
-*/
-
 type MemoryClient struct {
 	jobs    []*jobinator.Job
 	joblock sync.Mutex
@@ -63,13 +53,26 @@ func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
 }
 
 func (m *MemoryClient) InternalMarkJobFinished(j *jobinator.Job) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.Status = status.STATUS_DONE
 	return nil
 }
 
 func (m *MemoryClient) InternalPendingJobs() (int, error) {
-	return 0, nil
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	count := 0
+	for _, x := range m.jobs {
+		if x.Status == status.STATUS_ENQUEUED || x.Status == status.STATUS_RETRY {
+			count++
+		}
+	}
+	return count, nil
 }
 
-func (m *MemoryClient) InternalRegisterWorker(string, jobinator.WorkerFunc) {
-
+func (m *MemoryClient) InternalRegisterWorker(name string, wf jobinator.WorkerFunc) {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	m.wfList = append(m.wfList, name)
 }
