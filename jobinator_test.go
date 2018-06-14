@@ -219,4 +219,5 @@ func TestStopBlockingLongRunning(t *testing.T) {
 	for _, x := range c.workers {
 		assert.False(t, x.IsRunning())
 	}
+	c.DestroyAllWorkers()
 }
