@@ -3,6 +3,7 @@ package jobinator
 import (
 	"fmt"
 
+	"github.com/blasphemy/jobinator/status"
 	"github.com/vmihailenco/msgpack"
 )
 
@@ -96,7 +97,16 @@ func (c *Client) MarkJobFinished(j *Job) error {
 }
 
 func (c *Client) EnqueueJob(name string, args interface{}) error {
-	return c.InternalEnqueueJob(name, args)
+	ctx, err := msgpack.Marshal(args)
+	if err != nil {
+		return err
+	}
+	j := &Job{
+		Name:   name,
+		Args:   ctx,
+		Status: status.STATUS_ENQUEUED,
+	}
+	return c.InternalEnqueueJob(j)
 }
 
 func (c *Client) PendingJobs() (int, error) {

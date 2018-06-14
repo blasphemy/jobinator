@@ -8,7 +8,6 @@ import (
 	"github.com/blasphemy/jobinator/status"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/vmihailenco/msgpack"
 )
 
 type GormClient struct {
@@ -50,18 +49,9 @@ func (c *GormClient) InternalRegisterWorker(name string, wf WorkerFunc) {
 	c.wfList = append(c.wfList, name)
 }
 
-func (c *GormClient) InternalEnqueueJob(name string, args interface{}) error {
-	contextMsg, err := msgpack.Marshal(args)
-	if err != nil {
-		return err
-	}
-	nj := &Job{
-		Name:   name,
-		Args:   contextMsg,
-		Status: status.STATUS_ENQUEUED,
-	}
+func (c *GormClient) InternalEnqueueJob(j *Job) error {
 	c.dbLock.Lock()
-	err = c.db.Save(nj).Error
+	err := c.db.Save(j).Error
 	c.dbLock.Unlock()
 	return err
 }

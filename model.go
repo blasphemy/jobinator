@@ -5,7 +5,7 @@ import (
 )
 
 type InternalClient interface {
-	InternalEnqueueJob(string, interface{}) error
+	InternalEnqueueJob(*Job) error
 	InternalSelectJob() (*Job, error)
 	InternalMarkJobFinished(*Job) error
 	InternalPendingJobs() (int, error)
