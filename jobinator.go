@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/blasphemy/jobinator/status"
+	"github.com/satori/go.uuid"
 	"github.com/vmihailenco/msgpack"
 )
 
@@ -101,7 +102,12 @@ func (c *Client) EnqueueJob(name string, args interface{}) error {
 	if err != nil {
 		return err
 	}
+	id, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
 	j := &Job{
+		ID:     id.String(),
 		Name:   name,
 		Args:   ctx,
 		Status: status.STATUS_ENQUEUED,

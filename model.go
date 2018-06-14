@@ -13,7 +13,7 @@ type InternalClient interface {
 }
 
 type Job struct {
-	ID        int64
+	ID        string
 	Name      string
 	Args      []byte
 	CreatedAt time.Time
