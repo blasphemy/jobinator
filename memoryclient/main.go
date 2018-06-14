@@ -84,3 +84,10 @@ func (m *MemoryClient) InternalRegisterWorker(name string, wf jobinator.WorkerFu
 	defer m.joblock.Unlock()
 	m.wfList = append(m.wfList, name)
 }
+func (m *MemoryClient) SetError(j *jobinator.Job, errtxt string, stack string) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.Error = errtxt
+	j.ErrorStack = stack
+	return nil
+}

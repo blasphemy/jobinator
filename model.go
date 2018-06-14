@@ -12,6 +12,7 @@ type InternalClient interface {
 	InternalRegisterWorker(string, WorkerFunc)
 	IncRetryCount(*Job) error
 	SetStatus(*Job, int) error
+	SetError(*Job, string, string) error
 }
 
 //Job is the internal representation of a job
@@ -23,6 +24,8 @@ type Job struct {
 	Status     int
 	RetryCount int
 	MaxRetry   int
+	Error      string
+	ErrorStack string
 }
 
 //JobConfig includes options for when a job is queued

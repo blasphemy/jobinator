@@ -56,8 +56,8 @@ func (c *GormClient) InternalRegisterWorker(name string, wf jobinator.WorkerFunc
 //InternalEnqueueJob queues up a job.
 func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
 	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
 	err := c.db.Save(j).Error
-	c.dbLock.Unlock()
 	return err
 }
 
@@ -89,6 +89,8 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 }
 
 func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("status", status).Error
 	return err
 }
@@ -106,6 +108,15 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 }
 
 func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("retry_count", gorm.Expr("retry_count + ?", 1)).Error
+	return err
+}
+
+func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) error {
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
+	err := c.db.Model(j).Updates(&jobinator.Job{Error: errtxt, ErrorStack: stack}).Error
 	return err
 }

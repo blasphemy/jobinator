@@ -94,6 +94,14 @@ func (m *MockClient) SetStatus(j *Job, status int) error {
 	return nil
 }
 
+func (m *MockClient) SetError(j *Job, errtxt string, stack string) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.Error = errtxt
+	j.ErrorStack = stack
+	return nil
+}
+
 var c *Client
 
 type testArgs struct {

@@ -2,6 +2,7 @@ package jobinator
 
 import (
 	"fmt"
+	"runtime/debug"
 
 	"github.com/blasphemy/jobinator/status"
 	"github.com/satori/go.uuid"
@@ -44,6 +45,9 @@ func (c *Client) backgroundExecute() {
 	}
 	err = c.executeWorker(j.Name, ja)
 	if err != nil {
+		errtxt := err.Error()
+		errstack := string(debug.Stack())
+		c.SetError(j, errtxt, errstack)
 		c.IncRetryCount(j)
 		if j.RetryCount > j.MaxRetry {
 			c.SetStatus(j, status.Failed)
@@ -56,7 +60,7 @@ func (c *Client) backgroundExecute() {
 	return
 }
 
-//ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action
+//ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action. It also has no retry logic, and just returns the error.
 func (c *Client) ExecuteOneJob() error {
 	j, err := c.selectJob()
 	if err != nil {
