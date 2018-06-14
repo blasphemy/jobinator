@@ -44,7 +44,7 @@ func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer m.joblock.Unlock()
 	for _, x := range m.jobs {
 		if m.listContains(x.Name) {
-			if x.Status == status.STATUS_ENQUEUED || x.Status == status.STATUS_RETRY {
+			if x.Status == status.STATUS_PENDING || x.Status == status.STATUS_RETRY {
 				x.Status = status.STATUS_RUNNING
 				return x, nil
 			}
@@ -65,7 +65,7 @@ func (m *MemoryClient) InternalPendingJobs() (int, error) {
 	defer m.joblock.Unlock()
 	count := 0
 	for _, x := range m.jobs {
-		if x.Status == status.STATUS_ENQUEUED || x.Status == status.STATUS_RETRY {
+		if x.Status == status.STATUS_PENDING || x.Status == status.STATUS_RETRY {
 			count++
 		}
 	}

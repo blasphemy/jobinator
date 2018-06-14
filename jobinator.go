@@ -120,7 +120,7 @@ func (c *Client) EnqueueJob(name string, args interface{}) error {
 		ID:     id.String(),
 		Name:   name,
 		Args:   ctx,
-		Status: status.STATUS_ENQUEUED,
+		Status: status.STATUS_PENDING,
 	}
 	return c.InternalEnqueueJob(j)
 }
