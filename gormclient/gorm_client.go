@@ -88,9 +88,8 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	return j, nil
 }
 
-//InternalMarkJobFinished marks a job as done.
-func (c *GormClient) InternalMarkJobFinished(j *jobinator.Job) error {
-	err := c.db.Model(j).Update("status", status.Done).Error
+func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
+	err := c.db.Model(j).Update("status", status).Error
 	return err
 }
 
@@ -104,4 +103,9 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 		return 0, err
 	}
 	return n, nil
+}
+
+func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
+	err := c.db.Model(j).Update("retry_count", gorm.Expr("retry_count + ?", 1)).Error
+	return err
 }

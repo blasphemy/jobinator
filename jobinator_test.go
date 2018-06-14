@@ -79,6 +79,20 @@ func (m *MockClient) listContains(name string) bool {
 	return false
 }
 
+func (m *MockClient) IncRetryCount(j *Job) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.RetryCount++
+	return nil
+}
+
+func (m *MockClient) SetStatus(j *Job, status int) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.Status = status
+	return nil
+}
+
 var c *Client
 
 type testArgs struct {

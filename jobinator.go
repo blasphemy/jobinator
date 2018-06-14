@@ -44,10 +44,16 @@ func (c *Client) backgroundExecute() {
 	}
 	err = c.executeWorker(j.Name, ja)
 	if err != nil {
-		//RETRY LOGIC
+		//say job has retried 3 times, max is 3 but retry counter is currently at 2.
+		c.IncRetryCount(j)
+		if j.RetryCount >= j.MaxRetry {
+			c.SetStatus(j, status.Failed)
+			return
+		}
+		c.SetStatus(j, status.Retry)
 		return
 	}
-	c.markJobFinished(j)
+	c.SetStatus(j, status.Done)
 	return
 }
 
@@ -68,7 +74,7 @@ func (c *Client) ExecuteOneJob() error {
 	if err != nil {
 		return err
 	}
-	c.markJobFinished(j)
+	c.SetStatus(j, status.Done)
 	return nil
 }
 
@@ -120,10 +126,6 @@ func (c *Client) executeWorker(name string, ref *JobRef) error {
 
 func (c *Client) selectJob() (*Job, error) {
 	return c.InternalSelectJob()
-}
-
-func (c *Client) markJobFinished(j *Job) error {
-	return c.InternalMarkJobFinished(j)
 }
 
 //EnqueueJob queues up a job to be run by a worker.

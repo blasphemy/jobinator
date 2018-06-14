@@ -53,10 +53,17 @@ func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
 	return nil, nil
 }
 
-func (m *MemoryClient) InternalMarkJobFinished(j *jobinator.Job) error {
+func (m *MemoryClient) SetStatus(j *jobinator.Job, status int) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
-	j.Status = status.Done
+	j.Status = status
+	return nil
+}
+
+func (m *MemoryClient) IncRetryCount(j *jobinator.Job) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.RetryCount++
 	return nil
 }
 

@@ -8,18 +8,26 @@ import (
 type InternalClient interface {
 	InternalEnqueueJob(*Job) error
 	InternalSelectJob() (*Job, error)
-	InternalMarkJobFinished(*Job) error
 	InternalPendingJobs() (int, error)
 	InternalRegisterWorker(string, WorkerFunc)
+	IncRetryCount(*Job) error
+	SetStatus(*Job, int) error
 }
 
 //Job is the internal representation of a job
 type Job struct {
-	ID        string
-	Name      string
-	Args      []byte
-	CreatedAt time.Time
-	Status    int
+	ID         string
+	Name       string
+	Args       []byte
+	CreatedAt  time.Time
+	Status     int
+	RetryCount int
+	MaxRetry   int
+}
+
+//JobConfig includes options for when a job is queued
+type JobConfig struct {
+	MaxRetry int
 }
 
 //JobRef is a reference to a job (and it's client). It is passed to a WorkerFunc to get the job args
