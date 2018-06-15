@@ -45,6 +45,7 @@ func (c *Client) backgroundExecute() {
 		c: c,
 	}
 	err = c.executeWorker(j.Name, ja)
+	c.SetFinishedAt(j, time.Now())
 	if err != nil {
 		errtxt := err.Error()
 		errstack := string(debug.Stack())
@@ -58,7 +59,6 @@ func (c *Client) backgroundExecute() {
 		return
 	}
 	c.SetStatus(j, status.Done)
-	c.SetFinishedAt(j, time.Now())
 	return
 }
 
