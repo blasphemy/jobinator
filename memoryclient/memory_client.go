@@ -103,6 +103,7 @@ func (m *MemoryClient) SetError(j *jobinator.Job, errtxt string, stack string) e
 	return nil
 }
 
+//SetFinishedAt marks the time that the job finished at
 func (m *MemoryClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()

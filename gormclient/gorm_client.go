@@ -125,6 +125,7 @@ func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) err
 	return err
 }
 
+//SetFinishedAt marks the time that the job finished at
 func (c *GormClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
