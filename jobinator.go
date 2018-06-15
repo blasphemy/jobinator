@@ -3,6 +3,7 @@ package jobinator
 import (
 	"fmt"
 	"runtime/debug"
+	"time"
 
 	"github.com/blasphemy/jobinator/status"
 	"github.com/satori/go.uuid"
@@ -57,28 +58,8 @@ func (c *Client) backgroundExecute() {
 		return
 	}
 	c.SetStatus(j, status.Done)
+	c.SetFinishedAt(j, time.Now())
 	return
-}
-
-//ExecuteOneJob pulls one job from the backend and executes it. This is mostly for testing or if you do not want to use background workers. This is a blocking action. It also has no retry logic, and just returns the error.
-func (c *Client) ExecuteOneJob() error {
-	j, err := c.selectJob()
-	if err != nil {
-		return err
-	}
-	if j == nil {
-		return fmt.Errorf("No Jobs available")
-	}
-	ja := &JobRef{
-		j: j,
-		c: c,
-	}
-	err = c.executeWorker(j.Name, ja)
-	if err != nil {
-		return err
-	}
-	c.SetStatus(j, status.Done)
-	return nil
 }
 
 //ScanArgs scans the job's arguments into your struct of choice.

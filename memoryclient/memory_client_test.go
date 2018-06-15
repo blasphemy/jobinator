@@ -57,8 +57,10 @@ func TestEnqueJob(t *testing.T) {
 }
 
 func TestExecuteJob(t *testing.T) {
-	err := g.ExecuteOneJob()
-	assert.Nil(t, err)
+	g.NewBackgroundWorker()
+	g.StartAllWorkers()
+	time.Sleep(1 * time.Second)
+	g.DestroyAllWorkers()
 	assert.Equal(t, 1, test.count)
 }
 

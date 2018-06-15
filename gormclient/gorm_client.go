@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/blasphemy/jobinator"
 	"github.com/blasphemy/jobinator/status"
@@ -57,7 +58,7 @@ func (c *GormClient) InternalRegisterWorker(name string, wf jobinator.WorkerFunc
 func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
-	err := c.db.Save(j).Error
+	err := c.db.Create(j).Error
 	return err
 }
 
@@ -121,5 +122,12 @@ func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) err
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Updates(&jobinator.Job{Error: errtxt, ErrorStack: stack}).Error
+	return err
+}
+
+func (c *GormClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
+	c.dbLock.Lock()
+	defer c.dbLock.Unlock()
+	err := c.db.Model(j).Update("finished_at", t).Error
 	return err
 }

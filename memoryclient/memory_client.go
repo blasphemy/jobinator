@@ -2,6 +2,7 @@ package memoryclient
 
 import (
 	"sync"
+	"time"
 
 	"github.com/blasphemy/jobinator"
 	"github.com/blasphemy/jobinator/status"
@@ -99,5 +100,12 @@ func (m *MemoryClient) SetError(j *jobinator.Job, errtxt string, stack string) e
 	defer m.joblock.Unlock()
 	j.Error = errtxt
 	j.ErrorStack = stack
+	return nil
+}
+
+func (m *MemoryClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.FinishedAt = t
 	return nil
 }

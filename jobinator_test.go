@@ -102,6 +102,13 @@ func (m *MockClient) SetError(j *Job, errtxt string, stack string) error {
 	return nil
 }
 
+func (m *MockClient) SetFinishedAt(j *Job, t time.Time) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.FinishedAt = t
+	return nil
+}
+
 var c *Client
 
 type testArgs struct {
@@ -131,22 +138,6 @@ func TestRegisterWorker(t *testing.T) {
 		return nil
 	}
 	c.RegisterWorker("inc", wf)
-}
-
-func TestEnqueueJob(t *testing.T) {
-	args := &testArgs{
-		Amount: 1,
-	}
-	err := c.EnqueueJob("inc", args, JobConfig{
-		MaxRetry: 0,
-	})
-	assert.Nil(t, err)
-}
-
-func TestExecuteOneJob(t *testing.T) {
-	err := c.ExecuteOneJob()
-	assert.Nil(t, err)
-	assert.Equal(t, 1, td["NUM"])
 }
 
 func TestBackgroundWokers(t *testing.T) {
