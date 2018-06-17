@@ -140,12 +140,12 @@ func TestRepeatingJob(t *testing.T) {
 	c.RegisterWorker("repeater", wf)
 	c.EnqueueJob("repeater", nil, JobConfig{
 		Repeat:         true,
-		RepeatInterval: time.Second,
+		RepeatInterval: time.Second * 3,
 	})
 	c.NewBackgroundWorker()
 	c.NewBackgroundWorker()
 	c.StartAllWorkers()
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 10)
 	c.DestroyAllWorkers()
 	assert.Equal(t, 3, td["repeater"])
 }
