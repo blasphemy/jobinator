@@ -3,7 +3,6 @@ package gormclient
 import (
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/blasphemy/jobinator"
@@ -15,7 +14,6 @@ import (
 //GormClient represents a client using a Gorm backend (SQL)
 type GormClient struct {
 	db     *gorm.DB
-	dbLock sync.Mutex
 	wfList []string
 }
 
@@ -33,7 +31,6 @@ func NewGormClient(dbtype string, dbconn string, config jobinator.ClientConfig) 
 	}
 	newgc := &GormClient{
 		db:     db,
-		dbLock: sync.Mutex{},
 		wfList: []string{},
 	}
 	newc := jobinator.NewClient(newgc, config)
@@ -57,8 +54,6 @@ func (c *GormClient) InternalRegisterWorker(name string, wf jobinator.WorkerFunc
 
 //InternalEnqueueJob queues up a job.
 func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Create(j).Error
 	return err
 }
@@ -69,8 +64,6 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	for _, x := range c.wfList {
 		wf = append(wf, x)
 	}
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
 	j := &jobinator.Job{}
 	err := tx.First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run)) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
@@ -92,8 +85,6 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 
 //SetStatus sets the status for the job. See jobinator/status package for more info
 func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("status", status).Error
 	return err
 }
@@ -101,8 +92,6 @@ func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
 //InternalPendingJobs returns the amount of jobs that are pending.
 func (c *GormClient) InternalPendingJobs() (int, error) {
 	var n int
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Model(&jobinator.Job{}).Where("status in (?)", []int{status.Pending, status.Retry}).Count(&n).Error
 	if err != nil {
 		return 0, err
@@ -112,31 +101,23 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 
 //IncRetryCount increments the retry count for the job
 func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("retry_count", gorm.Expr("retry_count + ?", 1)).Error
 	return err
 }
 
 //SetError sets the error and stacktrace on the job, usually occuring before a retry.
 func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) error {
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Updates(&jobinator.Job{Error: errtxt, ErrorStack: stack}).Error
 	return err
 }
 
 //SetFinishedAt marks the time that the job finished at
 func (c *GormClient) SetFinishedAt(j *jobinator.Job, t int64) error {
-	c.dbLock.Lock()
-	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("finished_at", t).Error
 	return err
 }
 
-func (g *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
-	g.dbLock.Lock()
-	defer g.dbLock.Unlock()
-	err := g.db.Model(j).Update("next_run", t).Error
+func (c *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
+	err := c.db.Model(j).Update("next_run", t).Error
 	return err
 }
