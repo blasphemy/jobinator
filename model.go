@@ -12,27 +12,31 @@ type InternalClient interface {
 	InternalRegisterWorker(string, WorkerFunc)
 	IncRetryCount(*Job) error
 	SetStatus(*Job, int) error
-	SetFinishedAt(*Job, time.Time) error
+	SetFinishedAt(*Job, int64) error
 	SetError(*Job, string, string) error
 }
 
 //Job is the internal representation of a job
 type Job struct {
-	ID         string
-	Name       string `gorm:"index"`
-	Args       []byte
-	CreatedAt  time.Time
-	Status     int `gorm:"index"`
-	RetryCount int
-	MaxRetry   int
-	Error      string
-	ErrorStack string
-	FinishedAt time.Time
+	ID             string
+	Name           string `gorm:"index"`
+	Args           []byte
+	CreatedAt      int64
+	Status         int `gorm:"index"`
+	RetryCount     int
+	MaxRetry       int
+	Error          string
+	ErrorStack     string
+	FinishedAt     int64
+	Repeat         bool
+	RepeatInterval int64
 }
 
 //JobConfig includes options for when a job is queued
 type JobConfig struct {
-	MaxRetry int
+	MaxRetry       int
+	Repeat         bool
+	RepeatInterval time.Duration
 }
 
 //JobRef is a reference to a job (and it's client). It is passed to a WorkerFunc to get the job args

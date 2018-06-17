@@ -49,9 +49,20 @@ func (m *MemoryClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer m.joblock.Unlock()
 	for _, x := range m.jobs {
 		if m.listContains(x.Name) {
-			if x.Status == status.Pending || x.Status == status.Retry {
+			if x.Status == status.Retry {
 				x.Status = status.Running
 				return x, nil
+			}
+			if x.Status == status.Pending {
+				if !x.Repeat {
+					x.Status = status.Running
+					return x, nil
+				}
+				nextRun := x.FinishedAt + x.RepeatInterval
+				if time.Now().Unix() > nextRun {
+					x.Status = status.Running
+					return x, nil
+				}
 			}
 		}
 	}
@@ -104,7 +115,7 @@ func (m *MemoryClient) SetError(j *jobinator.Job, errtxt string, stack string) e
 }
 
 //SetFinishedAt marks the time that the job finished at
-func (m *MemoryClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
+func (m *MemoryClient) SetFinishedAt(j *jobinator.Job, t int64) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
 	j.FinishedAt = t

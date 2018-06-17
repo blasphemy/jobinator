@@ -45,7 +45,7 @@ func (c *Client) backgroundExecute() {
 		c: c,
 	}
 	err = c.executeWorker(j.Name, ja)
-	c.SetFinishedAt(j, time.Now())
+	c.SetFinishedAt(j, time.Now().Unix())
 	if err != nil {
 		errtxt := err.Error()
 		errstack := string(debug.Stack())
@@ -58,7 +58,11 @@ func (c *Client) backgroundExecute() {
 		c.SetStatus(j, status.Retry)
 		return
 	}
-	c.SetStatus(j, status.Done)
+	if j.Repeat {
+		c.SetStatus(j, status.Pending)
+	} else {
+		c.SetStatus(j, status.Done)
+	}
 	return
 }
 
@@ -123,11 +127,13 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 		return err
 	}
 	j := &Job{
-		ID:       id.String(),
-		Name:     name,
-		Args:     ctx,
-		Status:   status.Pending,
-		MaxRetry: config.MaxRetry,
+		ID:             id.String(),
+		Name:           name,
+		Args:           ctx,
+		Status:         status.Pending,
+		MaxRetry:       config.MaxRetry,
+		Repeat:         config.Repeat,
+		RepeatInterval: int64(config.RepeatInterval.Seconds()),
 	}
 	return c.InternalEnqueueJob(j)
 }

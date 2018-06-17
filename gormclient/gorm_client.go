@@ -72,7 +72,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
 	j := &jobinator.Job{}
-	err := tx.First(j, "status in (?) AND name in (?)", []int{status.Pending, status.Retry}, wf).Error
+	err := tx.First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? > (finished_at + repeat_interval))) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -126,7 +126,7 @@ func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) err
 }
 
 //SetFinishedAt marks the time that the job finished at
-func (c *GormClient) SetFinishedAt(j *jobinator.Job, t time.Time) error {
+func (c *GormClient) SetFinishedAt(j *jobinator.Job, t int64) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("finished_at", t).Error

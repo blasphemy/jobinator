@@ -62,9 +62,20 @@ func (m *MockClient) InternalSelectJob() (*Job, error) {
 	defer m.joblock.Unlock()
 	for _, x := range m.jobs {
 		if m.listContains(x.Name) {
-			if x.Status == status.Pending || x.Status == status.Retry {
+			if x.Status == status.Retry {
 				x.Status = status.Running
 				return x, nil
+			}
+			if x.Status == status.Pending {
+				if !x.Repeat {
+					x.Status = status.Running
+					return x, nil
+				}
+				nextRun := x.FinishedAt + x.RepeatInterval
+				if time.Now().Unix() > nextRun {
+					x.Status = status.Running
+					return x, nil
+				}
 			}
 		}
 	}
@@ -102,7 +113,7 @@ func (m *MockClient) SetError(j *Job, errtxt string, stack string) error {
 	return nil
 }
 
-func (m *MockClient) SetFinishedAt(j *Job, t time.Time) error {
+func (m *MockClient) SetFinishedAt(j *Job, t int64) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
 	j.FinishedAt = t
