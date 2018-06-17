@@ -136,3 +136,30 @@ func (m *MemoryClient) SetNextRun(j *jobinator.Job, t int64) error {
 	j.NextRun = t
 	return nil
 }
+
+func (m *MemoryClient) InternalCleanup(config jobinator.CleanUpConfig) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	deleteList := []int{}
+	for x, y := range m.jobs {
+		if y.Status == status.Done || (y.Status == status.Failed && config.IncludeFailed) {
+			if time.Now().Unix() > y.FinishedAt+int64(config.MaxAge.Seconds()) {
+				deleteList = append(deleteList, x)
+			}
+		}
+	}
+	newJobList := []*jobinator.Job{}
+	for x, y := range m.jobs {
+		contains := false
+		for _, z := range deleteList {
+			if x == z {
+				contains = true
+			}
+		}
+		if !contains {
+			newJobList = append(newJobList, y)
+		}
+	}
+	m.jobs = newJobList
+	return nil
+}

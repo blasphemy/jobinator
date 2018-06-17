@@ -122,3 +122,13 @@ func (c *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
 	err := c.db.Model(j).Update("next_run", t).Error
 	return err
 }
+
+func (c *GormClient) InternalCleanup(config jobinator.CleanUpConfig) error {
+	statuses := []int{
+		status.Done,
+	}
+	if config.IncludeFailed {
+		statuses = append(statuses, status.Failed)
+	}
+	return c.db.Delete(&jobinator.Job{}, "status in (?) AND ? > (finished_at + ?)", statuses, time.Now().Unix(), int64(config.MaxAge.Seconds())).Error
+}

@@ -149,3 +149,9 @@ func TestRepeatingJob(t *testing.T) {
 	c.DestroyAllWorkers()
 	assert.Equal(t, 3, td["repeater"])
 }
+
+func TestCleanup(t *testing.T) {
+	c.CleanUp(CleanUpConfig{
+		MaxAge: time.Second,
+	})
+}

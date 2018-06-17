@@ -15,6 +15,7 @@ type InternalClient interface {
 	SetFinishedAt(*Job, int64) error
 	SetNextRun(*Job, int64) error
 	SetError(*Job, string, string) error
+	InternalCleanup(CleanUpConfig) error
 }
 
 //Job is the internal representation of a job
@@ -53,4 +54,9 @@ type WorkerFunc func(j *JobRef) error
 //ClientConfig is settings that the client uses during runtime
 type ClientConfig struct {
 	WorkerSleepTime time.Duration
+}
+
+type CleanUpConfig struct {
+	MaxAge        time.Duration
+	IncludeFailed bool
 }

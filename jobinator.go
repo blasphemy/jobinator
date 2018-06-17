@@ -146,3 +146,7 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 func (c *Client) PendingJobs() (int, error) {
 	return c.InternalPendingJobs()
 }
+
+func (c *Client) CleanUp(config CleanUpConfig) error {
+	return c.InternalCleanup(config)
+}
