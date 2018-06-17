@@ -1,7 +1,6 @@
 package gormclient
 
 import (
-	"log"
 	"testing"
 	"time"
 
@@ -74,20 +73,4 @@ func TestPendingJobs(t *testing.T) {
 	num, err := g.PendingJobs()
 	assert.Nil(t, err)
 	assert.Equal(t, 1, num)
-}
-
-func TestRepeater(t *testing.T) {
-	g.RegisterWorker("testprinter", func(j *jobinator.JobRef) error {
-		log.Println("print")
-		return nil
-	})
-	g.EnqueueJob("testprinter", nil, jobinator.JobConfig{
-		Repeat:         true,
-		RepeatInterval: time.Second * 2,
-	})
-	g.NewBackgroundWorker()
-	g.NewBackgroundWorker()
-	g.StartAllWorkers()
-	time.Sleep(10 * time.Second)
-	g.DestroyAllWorkers()
 }
