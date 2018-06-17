@@ -69,7 +69,7 @@ func (m *MockClient) InternalSelectJob() (*Job, error) {
 					return x, nil
 				}
 				nextRun := x.FinishedAt + x.RepeatInterval
-				if time.Now().Unix() > nextRun {
+				if time.Now().Unix() >= nextRun {
 					x.Status = status.Running
 					return x, nil
 				}

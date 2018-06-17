@@ -20,7 +20,7 @@ var tdLock = sync.Mutex{}
 
 func TestEmpty(t *testing.T) {
 	c = newMockClient(ClientConfig{
-		WorkerSleepTime: time.Second / 10,
+		WorkerSleepTime: time.Second / 100,
 	})
 	assert.NotNil(t, c)
 }
@@ -103,7 +103,7 @@ func TestRetry(t *testing.T) {
 
 func TestStopBlockingLongRunning(t *testing.T) {
 	wf := func(j *JobRef) error {
-		time.Sleep(10 * time.Second)
+		time.Sleep(4 * time.Second)
 		return nil
 	}
 	c.RegisterWorker("sleep", wf)
@@ -127,4 +127,25 @@ func TestStartWorkerTwice(t *testing.T) {
 	c.StartAllWorkers()
 	time.Sleep(1)
 	c.DestroyAllWorkers()
+}
+
+func TestRepeatingJob(t *testing.T) {
+	td["repeater"] = 0
+	wf := func(j *JobRef) error {
+		tdLock.Lock()
+		td["repeater"]++
+		tdLock.Unlock()
+		return nil
+	}
+	c.RegisterWorker("repeater", wf)
+	c.EnqueueJob("repeater", nil, JobConfig{
+		Repeat:         true,
+		RepeatInterval: time.Second,
+	})
+	c.NewBackgroundWorker()
+	c.NewBackgroundWorker()
+	c.StartAllWorkers()
+	time.Sleep(time.Second * 3)
+	c.DestroyAllWorkers()
+	assert.Equal(t, 3, td["repeater"])
 }

@@ -135,6 +135,9 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 		Repeat:         config.Repeat,
 		RepeatInterval: int64(config.RepeatInterval.Seconds()),
 	}
+	if config.Repeat {
+		j.FinishedAt = time.Now().Unix()
+	}
 	return c.InternalEnqueueJob(j)
 }
 
