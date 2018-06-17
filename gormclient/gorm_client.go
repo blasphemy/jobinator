@@ -102,6 +102,7 @@ func (c *GormClient) InternalPendingJobs() (int, error) {
 //IncRetryCount increments the retry count for the job
 func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
 	err := c.db.Model(j).Update("retry_count", gorm.Expr("retry_count + ?", 1)).Error
+	j.RetryCount++
 	return err
 }
 
