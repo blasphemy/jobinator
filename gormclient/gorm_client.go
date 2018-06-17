@@ -106,7 +106,7 @@ func (c *GormClient) IncRetryCount(j *jobinator.Job) error {
 	return err
 }
 
-//SetError sets the error and stacktrace on the job, usually occuring before a retry.
+//SetError sets the error and stacktrace on the job, usually occurring before a retry.
 func (c *GormClient) SetError(j *jobinator.Job, errtxt string, stack string) error {
 	err := c.db.Model(j).Updates(&jobinator.Job{Error: errtxt, ErrorStack: stack}).Error
 	return err
