@@ -41,8 +41,17 @@ func (m *MockClient) InternalPendingJobs() (int, error) {
 	defer m.joblock.Unlock()
 	count := 0
 	for _, x := range m.jobs {
-		if x.Status == status.Pending || x.Status == status.Retry {
+		if x.Status == status.Retry {
 			count++
+		}
+		if x.Status == status.Pending {
+			if !x.Repeat {
+				count++
+			} else {
+				if x.NextRun > time.Now().Unix() {
+					count++
+				}
+			}
 		}
 	}
 	return count, nil
