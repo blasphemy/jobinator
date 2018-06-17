@@ -20,7 +20,7 @@ var tdLock = sync.Mutex{}
 
 func TestEmpty(t *testing.T) {
 	c = newMockClient(ClientConfig{
-		WorkerSleepTime: time.Second / 10,
+		WorkerSleepTime: time.Second / 2,
 	})
 	assert.NotNil(t, c)
 }

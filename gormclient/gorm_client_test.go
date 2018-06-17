@@ -1,6 +1,7 @@
 package gormclient
 
 import (
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -20,7 +21,7 @@ var test *testData
 
 func TestNewGormClient(t *testing.T) {
 	c, err := NewGormClient("sqlite3", "file::memory:?mode=memory&cache=shared", jobinator.ClientConfig{
-		WorkerSleepTime: time.Second / 2,
+		WorkerSleepTime: time.Second,
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
@@ -78,6 +79,26 @@ func TestPendingJobs(t *testing.T) {
 
 var td = make(map[string]int)
 var tdLock = sync.Mutex{}
+
+func TestErrorRetry(t *testing.T) {
+	td["error"] = 0
+	wf := func(j *jobinator.JobRef) error {
+		tdLock.Lock()
+		td["error"]++
+		tdLock.Unlock()
+		return errors.New("error")
+	}
+	g.RegisterWorker("error", wf)
+	g.EnqueueJob("error", nil, jobinator.JobConfig{
+		MaxRetry: 1,
+	})
+	g.NewBackgroundWorker()
+	g.NewBackgroundWorker()
+	g.StartAllWorkers()
+	time.Sleep(2 * time.Second)
+	g.DestroyAllWorkers()
+	assert.Equal(t, 2, td["error"])
+}
 
 func TestRepeatingJob(t *testing.T) {
 	td["repeater"] = 0
