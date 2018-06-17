@@ -26,6 +26,7 @@ func NewGormClient(dbtype string, dbconn string, config jobinator.ClientConfig) 
 		return nil, err
 	}
 	db, err := gorm.Open(dbtype, dbconn)
+	db.LogMode(false)
 	db.AutoMigrate(&jobinator.Job{})
 	if err != nil {
 		return nil, err
@@ -72,7 +73,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer c.dbLock.Unlock()
 	tx := c.db.Begin()
 	j := &jobinator.Job{}
-	err := tx.First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? > (finished_at + repeat_interval))) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
+	err := tx.First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run)) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -130,5 +131,12 @@ func (c *GormClient) SetFinishedAt(j *jobinator.Job, t int64) error {
 	c.dbLock.Lock()
 	defer c.dbLock.Unlock()
 	err := c.db.Model(j).Update("finished_at", t).Error
+	return err
+}
+
+func (g *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
+	g.dbLock.Lock()
+	defer g.dbLock.Unlock()
+	err := g.db.Model(j).Update("next_run", t).Error
 	return err
 }

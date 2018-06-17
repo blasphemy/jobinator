@@ -68,8 +68,7 @@ func (m *MockClient) InternalSelectJob() (*Job, error) {
 					x.Status = status.Running
 					return x, nil
 				}
-				nextRun := x.FinishedAt + x.RepeatInterval
-				if time.Now().Unix() >= nextRun {
+				if time.Now().Unix() >= x.NextRun {
 					x.Status = status.Running
 					return x, nil
 				}
@@ -114,5 +113,12 @@ func (m *MockClient) SetFinishedAt(j *Job, t int64) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
 	j.FinishedAt = t
+	return nil
+}
+
+func (m *MockClient) SetNextRun(j *Job, t int64) error {
+	m.joblock.Lock()
+	defer m.joblock.Unlock()
+	j.NextRun = t
 	return nil
 }

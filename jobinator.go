@@ -59,6 +59,7 @@ func (c *Client) backgroundExecute() {
 		return
 	}
 	if j.Repeat {
+		c.SetNextRun(j, time.Now().Add(j.RepeatInterval).Unix())
 		c.SetStatus(j, status.Pending)
 	} else {
 		c.SetStatus(j, status.Done)
@@ -133,10 +134,10 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 		Status:         status.Pending,
 		MaxRetry:       config.MaxRetry,
 		Repeat:         config.Repeat,
-		RepeatInterval: int64(config.RepeatInterval.Seconds()),
+		RepeatInterval: config.RepeatInterval,
 	}
 	if config.Repeat {
-		j.FinishedAt = time.Now().Unix()
+		j.NextRun = time.Now().Add(j.RepeatInterval).Unix()
 	}
 	return c.InternalEnqueueJob(j)
 }

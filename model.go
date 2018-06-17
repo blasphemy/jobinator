@@ -13,6 +13,7 @@ type InternalClient interface {
 	IncRetryCount(*Job) error
 	SetStatus(*Job, int) error
 	SetFinishedAt(*Job, int64) error
+	SetNextRun(*Job, int64) error
 	SetError(*Job, string, string) error
 }
 
@@ -29,7 +30,8 @@ type Job struct {
 	ErrorStack     string
 	FinishedAt     int64
 	Repeat         bool
-	RepeatInterval int64
+	RepeatInterval time.Duration
+	NextRun        int64
 }
 
 //JobConfig includes options for when a job is queued
