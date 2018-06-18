@@ -1,8 +1,6 @@
 package gormclient
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/blasphemy/jobinator"
@@ -19,10 +17,6 @@ type GormClient struct {
 
 //NewGormClient returns a new *Client backed by gorm. It requires a driver type and connection string, as well as a ClientConfig.
 func NewGormClient(dbtype string, dbconn string, config jobinator.ClientConfig) (*jobinator.Client, error) {
-	err := gormDriverIsValid(dbtype)
-	if err != nil {
-		return nil, err
-	}
 	db, err := gorm.Open(dbtype, dbconn)
 	db.LogMode(false)
 	db.AutoMigrate(&jobinator.Job{})
@@ -35,16 +29,6 @@ func NewGormClient(dbtype string, dbconn string, config jobinator.ClientConfig) 
 	}
 	newc := jobinator.NewClient(newgc, config)
 	return newc, nil
-}
-
-func gormDriverIsValid(driverName string) error {
-	vd := []string{"sqlite3"}
-	for _, x := range vd {
-		if driverName == x {
-			return nil
-		}
-	}
-	return fmt.Errorf("%s is not a valid driver, valid drivers are: %s", driverName, strings.Join(vd, " "))
 }
 
 //InternalRegisterWorker adds a worker to the list of registered workers for the internal client. This allows it to determine which jobs this node can execute.
