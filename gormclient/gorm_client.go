@@ -89,6 +89,7 @@ func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
 	return err
 }
 
+//InternalPendingJobs returns all pending jobs
 func (c *GormClient) InternalPendingJobs() ([]*jobinator.Job, error) {
 	var j []*jobinator.Job
 	err := c.db.Find(&j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run))", status.Retry, status.Pending, time.Now().Unix()).Error
@@ -117,6 +118,7 @@ func (c *GormClient) SetFinishedAt(j *jobinator.Job, t int64) error {
 	return err
 }
 
+//SetNextRun updates the next run field of the job
 func (c *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
 	err := c.db.Model(j).Update("next_run", t).Error
 	return err

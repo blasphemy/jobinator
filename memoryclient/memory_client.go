@@ -95,6 +95,7 @@ func (m *MemoryClient) IncRetryCount(j *jobinator.Job) error {
 	return nil
 }
 
+//InternalPendingJobs returns all pending jobs
 func (m *MemoryClient) InternalPendingJobs() ([]*jobinator.Job, error) {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
@@ -140,6 +141,7 @@ func (m *MemoryClient) SetFinishedAt(j *jobinator.Job, t int64) error {
 	return nil
 }
 
+//SetNextRun updates the next run field of the job
 func (m *MemoryClient) SetNextRun(j *jobinator.Job, t int64) error {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
