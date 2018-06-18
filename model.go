@@ -33,7 +33,7 @@ type Job struct {
 	Repeat         bool
 	RepeatInterval time.Duration
 	NextRun        int64
-	NamedJob       string
+	NamedJob       string `gorm:"index"` //named jobs should be unique but we don't want to require a name, so I'm not using unique_index
 }
 
 //JobConfig includes options for when a job is queued
