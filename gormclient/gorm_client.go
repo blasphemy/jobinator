@@ -59,12 +59,16 @@ func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
 		ej := &jobinator.Job{}
 		nf := c.db.First(ej, "named_job = ?", j.NamedJob).RecordNotFound()
 		if !nf { //found
-			err := c.db.Model(j).Update(&jobinator.Job{
+			updates := &jobinator.Job{
 				Args:           j.Args,
 				MaxRetry:       j.MaxRetry,
 				Repeat:         j.Repeat,
 				RepeatInterval: j.RepeatInterval,
-			}).Error
+			}
+			if j.Repeat {
+				updates.NextRun = ej.FinishedAt + int64(j.RepeatInterval.Seconds())
+			}
+			err := c.db.Model(ej).Update(updates).Error
 			return err
 		}
 	}
