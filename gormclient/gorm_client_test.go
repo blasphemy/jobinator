@@ -119,3 +119,14 @@ func TestRepeatingJob(t *testing.T) {
 	g.DestroyAllWorkers()
 	assert.Equal(t, 3, td["repeater"])
 }
+
+func TestEnqueueNamedJob(t *testing.T) {
+	err := g.EnqueueJob("whatever", nil, jobinator.JobConfig{
+		Identifier: "named_job1",
+	})
+	assert.Nil(t, err)
+	err = g.EnqueueJob("whatever", nil, jobinator.JobConfig{
+		Identifier: "named_job1",
+	})
+	assert.Nil(t, err)
+}
