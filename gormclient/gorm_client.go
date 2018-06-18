@@ -48,6 +48,7 @@ func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
 				MaxRetry:       j.MaxRetry,
 				Repeat:         j.Repeat,
 				RepeatInterval: j.RepeatInterval,
+				Name:           j.Name,
 			}
 			if j.Repeat {
 				updates.NextRun = ej.FinishedAt + int64(j.RepeatInterval.Seconds())

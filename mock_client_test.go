@@ -32,6 +32,7 @@ func (m *MockClient) InternalEnqueueJob(j *Job) error {
 				x.MaxRetry = j.MaxRetry
 				x.Repeat = j.Repeat
 				x.RepeatInterval = j.RepeatInterval
+				x.Name = j.Name
 				if j.Repeat {
 					x.NextRun = x.FinishedAt + int64(j.RepeatInterval.Seconds())
 				}

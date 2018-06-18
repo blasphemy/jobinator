@@ -37,6 +37,7 @@ func (m *MemoryClient) InternalEnqueueJob(j *jobinator.Job) error {
 				x.MaxRetry = j.MaxRetry
 				x.Repeat = j.Repeat
 				x.RepeatInterval = j.RepeatInterval
+				x.Name = j.Name
 				if j.Repeat {
 					x.NextRun = x.FinishedAt + int64(j.RepeatInterval.Seconds())
 				}
