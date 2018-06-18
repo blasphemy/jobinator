@@ -8,7 +8,7 @@ import (
 type InternalClient interface {
 	InternalEnqueueJob(*Job) error
 	InternalSelectJob() (*Job, error)
-	InternalPendingJobs() (int, error)
+	InternalPendingJobs() ([]*Job, error)
 	InternalRegisterWorker(string, WorkerFunc)
 	IncRetryCount(*Job) error
 	SetStatus(*Job, int) error

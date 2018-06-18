@@ -36,25 +36,25 @@ func (m *MockClient) InternalMarkJobFinished(j *Job) error {
 	return nil
 }
 
-func (m *MockClient) InternalPendingJobs() (int, error) {
+func (m *MockClient) InternalPendingJobs() ([]*Job, error) {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
-	count := 0
+	jobs := []*Job{}
 	for _, x := range m.jobs {
 		if x.Status == status.Retry {
-			count++
+			jobs = append(jobs, x)
 		}
 		if x.Status == status.Pending {
 			if !x.Repeat {
-				count++
+				jobs = append(jobs, x)
 			} else {
 				if x.NextRun > time.Now().Unix() {
-					count++
+					jobs = append(jobs, x)
 				}
 			}
 		}
 	}
-	return count, nil
+	return jobs, nil
 }
 
 func (m *MockClient) InternalRegisterWorker(name string, wf WorkerFunc) {

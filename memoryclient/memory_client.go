@@ -84,26 +84,25 @@ func (m *MemoryClient) IncRetryCount(j *jobinator.Job) error {
 	return nil
 }
 
-//InternalPendingJobs returns the number of pending jobs
-func (m *MemoryClient) InternalPendingJobs() (int, error) {
+func (m *MemoryClient) InternalPendingJobs() ([]*jobinator.Job, error) {
 	m.joblock.Lock()
 	defer m.joblock.Unlock()
-	count := 0
+	jobs := []*jobinator.Job{}
 	for _, x := range m.jobs {
 		if x.Status == status.Retry {
-			count++
+			jobs = append(jobs, x)
 		}
 		if x.Status == status.Pending {
 			if !x.Repeat {
-				count++
+				jobs = append(jobs, x)
 			} else {
 				if x.NextRun > time.Now().Unix() {
-					count++
+					jobs = append(jobs, x)
 				}
 			}
 		}
 	}
-	return count, nil
+	return jobs, nil
 }
 
 //InternalRegisterWorker adds the worker to the list of workers internally

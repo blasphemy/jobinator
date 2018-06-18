@@ -89,14 +89,13 @@ func (c *GormClient) SetStatus(j *jobinator.Job, status int) error {
 	return err
 }
 
-//InternalPendingJobs returns the amount of jobs that are pending.
-func (c *GormClient) InternalPendingJobs() (int, error) {
-	var n int
-	err := c.db.Model(&jobinator.Job{}).Where("status in (?)", []int{status.Pending, status.Retry}).Count(&n).Error
+func (c *GormClient) InternalPendingJobs() ([]*jobinator.Job, error) {
+	var j []*jobinator.Job
+	err := c.db.Find(&j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run))", status.Retry, status.Pending, time.Now().Unix()).Error
 	if err != nil {
-		return 0, err
+		return []*jobinator.Job{}, err
 	}
-	return n, nil
+	return j, nil
 }
 
 //IncRetryCount increments the retry count for the job

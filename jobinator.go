@@ -143,7 +143,7 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 }
 
 //PendingJobs returns the number of pending jobs.
-func (c *Client) PendingJobs() (int, error) {
+func (c *Client) PendingJobs() ([]*Job, error) {
 	return c.InternalPendingJobs()
 }
 
