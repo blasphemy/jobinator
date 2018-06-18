@@ -122,6 +122,7 @@ func (c *GormClient) SetNextRun(j *jobinator.Job, t int64) error {
 	return err
 }
 
+//InternalCleanup deletes all jobs that have been finished (or optionally failed jobs) older than specified in the CleanUpConfig
 func (c *GormClient) InternalCleanup(config jobinator.CleanUpConfig) error {
 	statuses := []int{
 		status.Done,

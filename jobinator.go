@@ -135,6 +135,7 @@ func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) err
 		MaxRetry:       config.MaxRetry,
 		Repeat:         config.Repeat,
 		RepeatInterval: config.RepeatInterval,
+		NamedJob:       config.Identifier,
 	}
 	if config.Repeat {
 		j.NextRun = time.Now().Add(j.RepeatInterval).Unix()
@@ -147,6 +148,7 @@ func (c *Client) PendingJobs() ([]*Job, error) {
 	return c.InternalPendingJobs()
 }
 
+//CleanUp deletes all jobs that have been finished (or optionally failed jobs) older than specified in the CleanUpConfig
 func (c *Client) CleanUp(config CleanUpConfig) error {
 	return c.InternalCleanup(config)
 }

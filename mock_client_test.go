@@ -24,7 +24,18 @@ func newMockClient(c ClientConfig) *Client {
 
 func (m *MockClient) InternalEnqueueJob(j *Job) error {
 	m.joblock.Lock()
-	m.jobs = append(m.jobs, j)
+	if j.NamedJob != "" {
+		for _, x := range m.jobs {
+			if x.NamedJob == j.NamedJob {
+				x.Args = j.Args
+				x.MaxRetry = j.MaxRetry
+				x.Repeat = j.Repeat
+				x.RepeatInterval = j.RepeatInterval
+			}
+		}
+	} else {
+		m.jobs = append(m.jobs, j)
+	}
 	m.joblock.Unlock()
 	return nil
 }

@@ -33,6 +33,7 @@ type Job struct {
 	Repeat         bool
 	RepeatInterval time.Duration
 	NextRun        int64
+	NamedJob       string
 }
 
 //JobConfig includes options for when a job is queued
@@ -40,6 +41,7 @@ type JobConfig struct {
 	MaxRetry       int
 	Repeat         bool
 	RepeatInterval time.Duration
+	Identifier     string
 }
 
 //JobRef is a reference to a job (and it's client). It is passed to a WorkerFunc to get the job args
@@ -56,6 +58,7 @@ type ClientConfig struct {
 	WorkerSleepTime time.Duration
 }
 
+//CleanUpConfig includes options for CleanUp methods
 type CleanUpConfig struct {
 	MaxAge        time.Duration
 	IncludeFailed bool
