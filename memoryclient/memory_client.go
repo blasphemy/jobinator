@@ -29,6 +29,7 @@ func NewMemoryClient(config jobinator.ClientConfig) *jobinator.Client {
 //InternalEnqueueJob queues up a job on the in memory store
 func (m *MemoryClient) InternalEnqueueJob(j *jobinator.Job) error {
 	m.joblock.Lock()
+	defer m.joblock.Unlock()
 	if j.NamedJob != "" {
 		for _, x := range m.jobs {
 			if x.NamedJob == j.NamedJob {
@@ -36,12 +37,11 @@ func (m *MemoryClient) InternalEnqueueJob(j *jobinator.Job) error {
 				x.MaxRetry = j.MaxRetry
 				x.Repeat = j.Repeat
 				x.RepeatInterval = j.RepeatInterval
+				return nil
 			}
 		}
-	} else {
-		m.jobs = append(m.jobs, j)
 	}
-	m.joblock.Unlock()
+	m.jobs = append(m.jobs, j)
 	return nil
 }
 
