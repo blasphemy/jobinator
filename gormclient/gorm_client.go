@@ -19,8 +19,8 @@ type GormClient struct {
 func NewExistingGormClient(db *gorm.DB) (*jobinator.Client, error) {
 	db.AutoMigrate(&jobinator.Job{})
 	newgc := &GormClient{
-		db: db,
-		wfList: []string{}
+		db:     db,
+		wfList: []string{},
 	}
 	newc := jobinator.NewClient(newgc, config)
 	return newc, nil
