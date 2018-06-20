@@ -15,10 +15,20 @@ type GormClient struct {
 	wfList []string
 }
 
+//NewExistingGormClient is like NewGormClient(), except instead of adding connection params, it uses an existing gorm handle.
+func NewExistingGormClient(db *gorm.DB) (*jobinator.Client, error) {
+	db.AutoMigrate(&jobinator.Job{})
+	newgc := &GormClient{
+		db: db,
+		wfList: []string{}
+	}
+	newc := jobinator.NewClient(newgc, config)
+	return newc, nil
+}
+
 //NewGormClient returns a new *Client backed by gorm. It requires a driver type and connection string, as well as a ClientConfig.
 func NewGormClient(dbtype string, dbconn string, config jobinator.ClientConfig) (*jobinator.Client, error) {
 	db, err := gorm.Open(dbtype, dbconn)
-	db.LogMode(false)
 	db.AutoMigrate(&jobinator.Job{})
 	if err != nil {
 		return nil, err
