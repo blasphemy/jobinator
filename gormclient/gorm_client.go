@@ -16,7 +16,7 @@ type GormClient struct {
 }
 
 //NewExistingGormClient is like NewGormClient(), except instead of adding connection params, it uses an existing gorm handle.
-func NewExistingGormClient(db *gorm.DB) (*jobinator.Client, error) {
+func NewExistingGormClient(db *gorm.DB, config jobinator.ClientConfig) (*jobinator.Client, error) {
 	db.AutoMigrate(&jobinator.Job{})
 	newgc := &GormClient{
 		db:     db,
