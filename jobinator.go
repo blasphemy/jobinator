@@ -152,3 +152,22 @@ func (c *Client) PendingJobs() ([]*Job, error) {
 func (c *Client) CleanUp(config CleanUpConfig) error {
 	return c.InternalCleanup(config)
 }
+
+func (c *Client) NamedJobInfo(name string) (JobInfo, error) {
+	j, err := c.GetNamedJob(name)
+	if err != nil {
+		return JobInfo{}, err
+	}
+	fa := time.Unix(j.FinishedAt, 0)
+	nr := time.Unix(j.NextRun, 0)
+	jinfo := JobInfo{
+		Identifier:     j.NamedJob,
+		ID:             j.ID,
+		LastRun:        fa,
+		NextRun:        nr,
+		RepeatInterval: j.RepeatInterval,
+		Repeat:         j.Repeat,
+		Args:           j.Args,
+	}
+	return jinfo, nil
+}

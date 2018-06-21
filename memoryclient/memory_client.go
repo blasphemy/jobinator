@@ -1,6 +1,7 @@
 package memoryclient
 
 import (
+	"errors"
 	"sync"
 	"time"
 
@@ -179,4 +180,13 @@ func (m *MemoryClient) InternalCleanup(config jobinator.CleanUpConfig) error {
 	}
 	m.jobs = newJobList
 	return nil
+}
+
+func (m *MemoryClient) GetNamedJob(name string) (*jobinator.Job, error) {
+	for _, x := range m.jobs {
+		if x.NamedJob == name {
+			return x, nil
+		}
+	}
+	return nil, errors.New("Job not found")
 }

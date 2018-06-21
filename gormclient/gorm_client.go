@@ -147,3 +147,12 @@ func (c *GormClient) InternalCleanup(config jobinator.CleanUpConfig) error {
 	}
 	return c.db.Delete(&jobinator.Job{}, "status in (?) AND ? > (finished_at + ?)", statuses, time.Now().Unix(), int64(config.MaxAge.Seconds())).Error
 }
+
+func (c *GormClient) GetNamedJob(name string) (*jobinator.Job, error) {
+	j := &jobinator.Job{}
+	err := c.db.First(j, "named_job = ?", name).Error
+	if err != nil {
+		return nil, err
+	}
+	return j, nil
+}

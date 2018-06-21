@@ -16,6 +16,7 @@ type InternalClient interface {
 	SetNextRun(*Job, int64) error
 	SetError(*Job, string, string) error
 	InternalCleanup(CleanUpConfig) error
+	GetNamedJob(string) (*Job, error)
 }
 
 //Job is the internal representation of a job
@@ -62,4 +63,14 @@ type ClientConfig struct {
 type CleanUpConfig struct {
 	MaxAge        time.Duration
 	IncludeFailed bool
+}
+
+type JobInfo struct {
+	Identifier     string
+	ID             string
+	LastRun        time.Time
+	NextRun        time.Time
+	RepeatInterval time.Duration
+	Repeat         bool
+	Args           []byte
 }

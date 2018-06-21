@@ -1,6 +1,7 @@
 package jobinator
 
 import (
+	"errors"
 	"sync"
 	"time"
 
@@ -172,4 +173,13 @@ func (m *MockClient) InternalCleanup(config CleanUpConfig) error {
 	}
 	m.jobs = newJobList
 	return nil
+}
+
+func (m *MockClient) GetNamedJob(name string) (*Job, error) {
+	for _, x := range m.jobs {
+		if x.NamedJob == name {
+			return x, nil
+		}
+	}
+	return nil, errors.New("Job not found")
 }
