@@ -1,13 +1,13 @@
 package jobinator
 
 import (
+	"encoding/json"
 	"fmt"
 	"runtime/debug"
 	"time"
 
 	"github.com/blasphemy/jobinator/status"
 	"github.com/satori/go.uuid"
-	"github.com/vmihailenco/msgpack"
 )
 
 //Client is the main handle for a jobinator instance. It is where you will perform most actions.
@@ -69,7 +69,7 @@ func (c *Client) backgroundExecute() {
 
 //ScanArgs scans the job's arguments into your struct of choice.
 func (j *JobRef) ScanArgs(v interface{}) error {
-	err := msgpack.Unmarshal(j.j.Args, v)
+	err := json.Unmarshal(j.j.Args, v)
 	return err
 }
 
@@ -119,7 +119,7 @@ func (c *Client) selectJob() (*Job, error) {
 
 //EnqueueJob queues up a job to be run by a worker.
 func (c *Client) EnqueueJob(name string, args interface{}, config JobConfig) error {
-	ctx, err := msgpack.Marshal(args)
+	ctx, err := json.Marshal(args)
 	if err != nil {
 		return err
 	}
