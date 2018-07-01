@@ -79,7 +79,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	}
 	tx := c.db.Begin()
 	j := &jobinator.Job{}
-	err := tx.First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run)) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
+	err := tx.Order("finished_at asc").First(j, "status = ? OR (status = ? AND (repeat = false) OR (repeat = true AND ? >= next_run)) AND name in (?)", status.Retry, status.Pending, time.Now().Unix(), wf).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err

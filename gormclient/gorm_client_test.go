@@ -21,7 +21,7 @@ var test *testData
 
 func TestNewGormClient(t *testing.T) {
 	c, err := NewGormClient("sqlite3", "file::memory:?mode=memory&cache=shared", jobinator.ClientConfig{
-		WorkerSleepTime: time.Second,
+		WorkerSleepTime: time.Second * 2,
 	})
 	assert.Nil(t, err)
 	assert.NotNil(t, c)
@@ -61,7 +61,6 @@ func TestEnqueJob(t *testing.T) {
 
 func TestExecuteJob(t *testing.T) {
 	g.NewBackgroundWorker()
-	g.NewBackgroundWorker()
 	g.StartAllWorkers()
 	time.Sleep(1 * time.Second)
 	g.DestroyAllWorkers()
@@ -93,9 +92,9 @@ func TestErrorRetry(t *testing.T) {
 		MaxRetry: 1,
 	})
 	g.NewBackgroundWorker()
-	g.NewBackgroundWorker()
+        g.NewBackgroundWorker()
 	g.StartAllWorkers()
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 	g.DestroyAllWorkers()
 	assert.Equal(t, 2, td["error"])
 }
@@ -115,7 +114,7 @@ func TestRepeatingJob(t *testing.T) {
 	})
 	g.NewBackgroundWorker()
 	g.StartAllWorkers()
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 6)
 	g.DestroyAllWorkers()
 	assert.Equal(t, 3, td["repeater"])
 }
