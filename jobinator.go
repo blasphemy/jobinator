@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/blasphemy/jobinator/status"
+	"github.com/satori/go.uuid"
 )
 
 //Client is the main handle for a jobinator instance. It is where you will perform most actions.
