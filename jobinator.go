@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/blasphemy/jobinator/status"
-	"github.com/satori/go.uuid"
 )
 
 //Client is the main handle for a jobinator instance. It is where you will perform most actions.
@@ -57,6 +56,8 @@ func (c *Client) backgroundExecute() {
 		}
 		c.SetStatus(j, status.Retry)
 		return
+	} else {
+		c.SetError(j, "", "")
 	}
 	if j.Repeat {
 		c.SetNextRun(j, time.Now().Add(j.RepeatInterval).Unix())
