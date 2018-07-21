@@ -1,6 +1,7 @@
 package gormclient
 
 import (
+	"log"
 	"time"
 
 	"github.com/blasphemy/jobinator"
@@ -73,6 +74,12 @@ func (c *GormClient) InternalEnqueueJob(j *jobinator.Job) error {
 
 //InternalSelectJob selects a job from the database and marks it as in progress.
 func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			log.Println("recovering from panic")
+		}
+	}()
 	wf := []string{}
 	for _, x := range c.wfList {
 		wf = append(wf, x)
