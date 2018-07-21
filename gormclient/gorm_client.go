@@ -1,7 +1,7 @@
 package gormclient
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/blasphemy/jobinator"
@@ -77,7 +77,7 @@ func (c *GormClient) InternalSelectJob() (*jobinator.Job, error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			log.Println("recovering from panic")
+			fmt.Println("Recovering from panic in InternalSelectJob()")
 		}
 	}()
 	wf := []string{}
